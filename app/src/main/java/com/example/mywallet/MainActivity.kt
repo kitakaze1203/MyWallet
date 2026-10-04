@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -60,22 +62,46 @@ fun TransactionInput(modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Black)
+            .background(color = Color(0xFF171824))
     ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxSize()
-                .padding(30.dp),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            Text(
-                color = Color.White,
-                fontSize = 80.sp,
-                lineHeight = 1.em,
-                text = "¥" + amount.toString()
-            )
-        }
+           Column(
+               modifier = Modifier
+               .weight(1f)
+               .fillMaxSize()
+               .padding(30.dp),){
+               Text(
+                   modifier = Modifier
+                       .weight(1f)
+                       .fillMaxWidth(),
+                   color = Color(0xAAFFFFFF),
+                   fontSize = 25.sp,
+                   textAlign = TextAlign.Center,
+                   lineHeight = 1.em,
+                   text = "↓スワイプで収入"
+               )
+               Text(
+                   modifier = Modifier
+                       .weight(2f)
+                       .fillMaxWidth()
+                       .wrapContentHeight(Alignment.CenterVertically),
+                   color = Color.White,
+                   fontSize = 80.sp,
+                   textAlign = TextAlign.End,
+                   lineHeight = 1.em,
+                   text = "¥" + amount.toString()
+               )
+               Text(
+                   modifier = Modifier
+                       .weight(1f)
+                       .fillMaxWidth()
+                       .wrapContentHeight(Alignment.Bottom),
+                   color = Color(0xAAFFFFFF),
+                   fontSize = 25.sp,
+                   textAlign = TextAlign.Center,
+                   lineHeight = 1.em,
+                   text = "↑スワイプで支出"
+                )
+            }
         Column(
             modifier = Modifier
                 .weight(1.2f)
@@ -131,6 +157,12 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
             }
         },
         shape = CircleShape,
+        colors = ButtonColors(
+            containerColor = Color(0xFF2A4373),
+            contentColor = Color.White,
+            disabledContainerColor = Color(0xFF2A4373),
+            disabledContentColor = Color.White
+        ),
         contentPadding = PaddingValues(0.dp)
     ) {
         if (text == targetText) {
