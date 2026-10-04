@@ -12,7 +12,9 @@ import kotlin.math.abs
 fun SwipeArea(
     modifier: Modifier = Modifier,
     onSwipeUp: () -> Unit,
-    onSwipeDown: () -> Unit
+    onSwipeDown: () -> Unit,
+    onDragUp: () -> Unit,
+    onDragDown: () -> Unit
 ) {
     val minDistance = 100f
 
@@ -33,6 +35,7 @@ fun SwipeArea(
 
                         totalX += dragAmount.x
                         totalY += dragAmount.y
+                        if(dragAmount.y != 0f) if (dragAmount.y < 0) onDragUp() else onDragDown()
                     },
                     onDragEnd = {
 

@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +60,23 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TransactionInput(modifier: Modifier = Modifier) {
     var amount by remember { mutableIntStateOf(0) }
+    var incomeWeight by remember { mutableFloatStateOf(1f) }
+    var expenditureWeight by remember {mutableFloatStateOf(1f)}
+    SwipeArea(
+        modifier = modifier,
+        onSwipeUp = { amount = -amount },
+        onSwipeDown = {},
+        onDragDown = {
+            if(expenditureWeight<1f) expenditureWeight += 0.05f
+            incomeWeight -= 0.05f
+            if(incomeWeight <= 0f) incomeWeight = 0.01f
+        },
+        onDragUp = {
+            if(incomeWeight<1f) incomeWeight += 0.05f
+            expenditureWeight -= 0.05f
+            if(expenditureWeight <= 0f) expenditureWeight = 0.01f
+        }
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,8 +89,9 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                .padding(30.dp),){
                Text(
                    modifier = Modifier
-                       .weight(1f)
-                       .fillMaxWidth(),
+                       .weight(expenditureWeight)
+                       .fillMaxWidth()
+                       .wrapContentHeight(Alignment.CenterVertically),
                    color = Color(0xAAFFFFFF),
                    fontSize = 25.sp,
                    textAlign = TextAlign.Center,
@@ -92,7 +111,7 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                )
                Text(
                    modifier = Modifier
-                       .weight(1f)
+                       .weight(incomeWeight)
                        .fillMaxWidth()
                        .wrapContentHeight(Alignment.Bottom),
                    color = Color(0xAAFFFFFF),
