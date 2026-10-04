@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.mywallet.ui.theme.MywalletTheme
 class MainActivity : ComponentActivity() {
@@ -64,18 +65,20 @@ fun TransactionInput(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center,
+                .fillMaxSize()
+                .padding(30.dp),
+            contentAlignment = Alignment.CenterEnd,
         ) {
             Text(
                 color = Color.White,
                 fontSize = 80.sp,
+                lineHeight = 1.em,
                 text = "¥" + amount.toString()
             )
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(1.2f)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -87,6 +90,7 @@ fun TransactionInput(modifier: Modifier = Modifier) {
             RowButton(textFirst = "1", textSecond = "2", textThird = "3", amount = amount, amountChange = {amount = it})
             Spacer(modifier = Modifier.size(10.dp))
             RowButton(textFirst = "0", textSecond = "00", textThird = "⇐", amount = amount, amountChange = {amount = it})
+            Spacer(modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -119,9 +123,9 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
             .size(100.dp),
         onClick = {
             if(text == "00"){
-                amountChange(amount * 100)
+                if(amount * 100 < 999999) amountChange(amount * 100) else amountChange(999999)
             }else if(text != targetText){
-                amountChange(amount * 10 + text.toInt())
+                if(amount * 100 < 999999) amountChange(amount * 10 + text.toInt()) else amountChange(999999)
             }else {
                 amountChange(amount / 10)
             }
@@ -156,5 +160,6 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
 @Composable
 fun test()
 {
-    Buttons(text = stringResource(R.string.delete),amount = 0, amountChange = {})
+    //Buttons(text = stringResource(R.string.delete),amount = 0, amountChange = {})
+    TransactionInput()
 }
