@@ -65,8 +65,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TransactionInput(modifier: Modifier = Modifier) {
     var amount by remember { mutableIntStateOf(0) }
-    var incomeWeight by remember { mutableFloatStateOf(1f) }
-    var expenditureWeight by remember {mutableFloatStateOf(1f)}
+    var incomeAlpha by remember { mutableFloatStateOf(1f) }
+    var expenditureAlpha by remember {mutableFloatStateOf(1f)}
     var amountOffset by remember {mutableFloatStateOf(0f)}
     var amountColor by remember { mutableStateOf(Color.White)}
     SwipeArea(
@@ -80,9 +80,19 @@ fun TransactionInput(modifier: Modifier = Modifier) {
         },
         onSwipeEnd = {
             amountOffset = 0f
+            incomeAlpha = 1f
+            expenditureAlpha = 1f
         },
-        onDragDown = { amountOffset = it },
-        onDragUp = { amountOffset = it }
+        onDragDown = {
+            amountOffset = it
+            incomeAlpha = -it/200f+1
+            expenditureAlpha = it/200f+1
+                     },
+        onDragUp = {
+            amountOffset = it
+            incomeAlpha = -it/200f+1
+            expenditureAlpha = it/200f+1
+        }
     )
     Column(
         modifier = Modifier
@@ -96,10 +106,10 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                .padding(30.dp),){
                Text(
                    modifier = Modifier
-                       .weight(expenditureWeight)
+                       .weight(1f)
                        .fillMaxWidth()
                        .wrapContentHeight(Alignment.CenterVertically),
-                   color = Color(0xAAFFFFFF),
+                   color = Color(0xAAFFFFFF).copy(alpha = expenditureAlpha),
                    fontSize = 25.sp,
                    textAlign = TextAlign.Center,
                    lineHeight = 1.em,
@@ -124,10 +134,10 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                )
                Text(
                    modifier = Modifier
-                       .weight(incomeWeight)
+                       .weight(1f)
                        .fillMaxWidth()
                        .wrapContentHeight(Alignment.CenterVertically),
-                   color = Color(0xAAFFFFFF),
+                   color = Color(0xAAFFFFFF).copy(alpha = incomeAlpha),
                    fontSize = 25.sp,
                    textAlign = TextAlign.Center,
                    lineHeight = 1.em,
