@@ -13,10 +13,11 @@ fun SwipeArea(
     modifier: Modifier = Modifier,
     onSwipeUp: () -> Unit,
     onSwipeDown: () -> Unit,
-    onDragUp: () -> Unit,
-    onDragDown: () -> Unit
+    onSwipeEnd: () -> Unit,
+    onDragUp: (Amount: Float) -> Unit,
+    onDragDown: (Amount: Float) -> Unit
 ) {
-    val minDistance = 100f
+    val minDistance = 300f
 
     Box(
         modifier = modifier
@@ -24,6 +25,7 @@ fun SwipeArea(
             .pointerInput(Unit) {
                 var totalX = 0f
                 var totalY = 0f
+                var moveY = 0f
                 detectDragGestures(
                     onDragStart = {
                         totalX = 0f
@@ -35,10 +37,17 @@ fun SwipeArea(
 
                         totalX += dragAmount.x
                         totalY += dragAmount.y
-                        if(dragAmount.y != 0f) if (dragAmount.y < 0) onDragUp() else onDragDown()
+                        if(totalY < -minDistance){
+                            moveY = -minDistance
+                        } else if(totalY > minDistance){
+                            moveY = minDistance
+                        } else {
+                            moveY = totalY
+                        }
+                        if(dragAmount.y != 0f) if (dragAmount.y < 0f) onDragUp(moveY) else onDragDown(moveY)
                     },
                     onDragEnd = {
-
+                        onSwipeEnd()
                         if (
                             abs(totalY) >= minDistance &&
                             abs(totalY) > abs(totalX)

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,10 +39,13 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.mywallet.ui.theme.MywalletTheme
+import kotlin.math.roundToInt
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,20 +67,22 @@ fun TransactionInput(modifier: Modifier = Modifier) {
     var amount by remember { mutableIntStateOf(0) }
     var incomeWeight by remember { mutableFloatStateOf(1f) }
     var expenditureWeight by remember {mutableFloatStateOf(1f)}
+    var amountOffset by remember {mutableFloatStateOf(0f)}
+    var amountColor by remember { mutableStateOf(Color.White)}
     SwipeArea(
         modifier = modifier,
-        onSwipeUp = { amount = -amount },
-        onSwipeDown = {},
-        onDragDown = {
-            if(expenditureWeight<1f) expenditureWeight += 0.05f
-            incomeWeight -= 0.05f
-            if(incomeWeight <= 0f) incomeWeight = 0.01f
+        onSwipeUp = {
+            amount = -amount
+            amountColor = Color.Red
         },
-        onDragUp = {
-            if(incomeWeight<1f) incomeWeight += 0.05f
-            expenditureWeight -= 0.05f
-            if(expenditureWeight <= 0f) expenditureWeight = 0.01f
-        }
+        onSwipeDown = {
+            amountColor = Color.Green
+        },
+        onSwipeEnd = {
+            amountOffset = 0f
+        },
+        onDragDown = { amountOffset = it },
+        onDragUp = { amountOffset = it }
     )
     Column(
         modifier = Modifier
@@ -96,14 +103,20 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                    fontSize = 25.sp,
                    textAlign = TextAlign.Center,
                    lineHeight = 1.em,
-                   text = "↓スワイプで収入"
+                   text = "↓スワイプで入金"
                )
                Text(
                    modifier = Modifier
                        .weight(2f)
                        .fillMaxWidth()
-                       .wrapContentHeight(Alignment.CenterVertically),
-                   color = Color.White,
+                       .wrapContentHeight(Alignment.CenterVertically)
+                       .offset {
+                           IntOffset(
+                               x = 0,
+                               y = amountOffset.roundToInt()
+                           )
+                       },
+                   color = amountColor,
                    fontSize = 80.sp,
                    textAlign = TextAlign.End,
                    lineHeight = 1.em,
@@ -113,12 +126,12 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                    modifier = Modifier
                        .weight(incomeWeight)
                        .fillMaxWidth()
-                       .wrapContentHeight(Alignment.Bottom),
+                       .wrapContentHeight(Alignment.CenterVertically),
                    color = Color(0xAAFFFFFF),
                    fontSize = 25.sp,
                    textAlign = TextAlign.Center,
                    lineHeight = 1.em,
-                   text = "↑スワイプで支出"
+                   text = "↑スワイプで出金"
                 )
             }
         Column(
