@@ -58,9 +58,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MywalletTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(containerColor = Color(0xFF171824), modifier = Modifier.fillMaxSize()) { innerpadding ->
                     TransactionInput(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerpadding)
                     )
                 }
             }
@@ -84,7 +84,6 @@ fun TransactionInput(modifier: Modifier = Modifier) {
         modifier = modifier,
         onSwipeUp = {
             amount = -amount
-            amountColor = Color.Red
             isDrag = false
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
@@ -100,6 +99,8 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                     swipeOffset = 0f
                     amountColor = Color.White
                     amountAlpha.snapTo(1f)
+                    expenditureAlpha = 1f
+                    amount = 0
                     isDrag = true
                 }
                 launch {
@@ -114,7 +115,6 @@ fun TransactionInput(modifier: Modifier = Modifier) {
             }
         },
         onSwipeDown = {
-            amountColor = Color.Green
             isDrag = false
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
@@ -130,6 +130,8 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                     swipeOffset = 0f
                     amountColor = Color.White
                     amountAlpha.snapTo(1f)
+                    incomeAlpha = 1f
+                    amount = 0
                     isDrag = true
                 }
                 launch {
@@ -148,15 +150,17 @@ fun TransactionInput(modifier: Modifier = Modifier) {
             incomeAlpha = 1f
             expenditureAlpha = 1f
         },
-        onDragDown = {
-            swipeOffset = it
-            incomeAlpha = -it/200f+1
-            expenditureAlpha = it/200f+1
+        onDragDown = { amount, color ->
+            amountColor = color
+            swipeOffset = amount
+            incomeAlpha = -amount/200f+1
+            expenditureAlpha = amount/200f+1
                      },
-        onDragUp = {
-            swipeOffset = it
-            incomeAlpha = -it/200f+1
-            expenditureAlpha = it/200f+1
+        onDragUp = { amount, color ->
+            amountColor = color
+            swipeOffset = amount
+            incomeAlpha = -amount/200f+1
+            expenditureAlpha = amount/200f+1
         },
         onDragCancel = {
             amount =0
@@ -165,78 +169,77 @@ fun TransactionInput(modifier: Modifier = Modifier) {
             swipeOffset = 0f
             amountColor = Color.White
         }
-    )
+    ){
+        val amountOffset = if(isDrag) swipeOffset else animateOffset.value
 
-    val amountOffset = if(isDrag) swipeOffset else animateOffset.value
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color(0xFF171824))
-    ) {
-           Column(
-               modifier = Modifier
-               .weight(1f)
-               .fillMaxSize()
-               .padding(30.dp),){
-               Text(
-                   modifier = Modifier
-                       .weight(1f)
-                       .fillMaxWidth()
-                       .wrapContentHeight(Alignment.CenterVertically),
-                   color = Color(0xAAFFFFFF).copy(alpha = expenditureAlpha),
-                   fontSize = 25.sp,
-                   textAlign = TextAlign.Center,
-                   lineHeight = 1.em,
-                   text = "↓スワイプで入金"
-               )
-               Text(
-                   modifier = Modifier
-                       .weight(2f)
-                       .fillMaxWidth()
-                       .wrapContentHeight(Alignment.CenterVertically)
-                       .offset {
-                           IntOffset(
-                               x = 0,
-                               y = amountOffset.roundToInt()
-                           )
-                       },
-                   color = amountColor.copy(alpha = amountAlpha.value),
-                   fontSize = 80.sp,
-                   textAlign = TextAlign.End,
-                   lineHeight = 1.em,
-                   text = "¥" + amount.toString()
-               )
-               Text(
-                   modifier = Modifier
-                       .weight(1f)
-                       .fillMaxWidth()
-                       .wrapContentHeight(Alignment.CenterVertically),
-                   color = Color(0xAAFFFFFF).copy(alpha = incomeAlpha),
-                   fontSize = 25.sp,
-                   textAlign = TextAlign.Center,
-                   lineHeight = 1.em,
-                   text = "↑スワイプで出金"
-                )
-            }
         Column(
             modifier = Modifier
-                .weight(1.2f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-            RowButton(textFirst = "7", textSecond = "8", textThird = "9", amount = amount, amountChange = {amount = it})
-            Spacer(modifier = Modifier.size(10.dp))
-            RowButton(textFirst = "4", textSecond = "5", textThird = "6", amount = amount, amountChange = {amount = it})
-            Spacer(modifier = Modifier.size(10.dp))
-            RowButton(textFirst = "1", textSecond = "2", textThird = "3", amount = amount, amountChange = {amount = it})
-            Spacer(modifier = Modifier.size(10.dp))
-            RowButton(textFirst = "0", textSecond = "00", textThird = "⇐", amount = amount, amountChange = {amount = it})
-            Spacer(modifier = Modifier.size(20.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .padding(30.dp),){
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.CenterVertically),
+                    color = Color(0xAAFFFFFF).copy(alpha = expenditureAlpha),
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 1.em,
+                    text = "↓スワイプで入金"
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(2f)
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.CenterVertically)
+                        .offset {
+                            IntOffset(
+                                x = 0,
+                                y = amountOffset.roundToInt()
+                            )
+                        },
+                    color = amountColor.copy(alpha = amountAlpha.value),
+                    fontSize = 80.sp,
+                    textAlign = TextAlign.End,
+                    lineHeight = 1.em,
+                    text = "¥" + amount.toString()
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.CenterVertically),
+                    color = Color(0xAAFFFFFF).copy(alpha = incomeAlpha),
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 1.em,
+                    text = "↑スワイプで出金"
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1.2f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                RowButton(textFirst = "7", textSecond = "8", textThird = "9", amount = amount, amountChange = {amount = it})
+                Spacer(modifier = Modifier.size(10.dp))
+                RowButton(textFirst = "4", textSecond = "5", textThird = "6", amount = amount, amountChange = {amount = it})
+                Spacer(modifier = Modifier.size(10.dp))
+                RowButton(textFirst = "1", textSecond = "2", textThird = "3", amount = amount, amountChange = {amount = it})
+                Spacer(modifier = Modifier.size(10.dp))
+                RowButton(textFirst = "0", textSecond = "00", textThird = "⇐", amount = amount, amountChange = {amount = it})
+                Spacer(modifier = Modifier.size(20.dp))
+            }
         }
     }
-}
+    }
 
 @Composable
 fun RowButton(
@@ -302,7 +305,6 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
         }
     }
 }
-
 
 
 @Preview(showBackground = true)
