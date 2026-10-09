@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +33,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.mywallet.ui.theme.MywalletTheme
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -66,34 +72,103 @@ class MainActivity : ComponentActivity() {
 fun TransactionInput(modifier: Modifier = Modifier) {
     var amount by remember { mutableIntStateOf(0) }
     var incomeAlpha by remember { mutableFloatStateOf(1f) }
-    var expenditureAlpha by remember {mutableFloatStateOf(1f)}
-    var amountOffset by remember {mutableFloatStateOf(0f)}
-    var amountColor by remember { mutableStateOf(Color.White)}
+    var expenditureAlpha by remember { mutableFloatStateOf(1f) }
+    var amountColor by remember { mutableStateOf(Color.White) }
+    var amountAlpha = remember { Animatable(1f) }
+    val animateOffset = remember { Animatable(0f) }
+    var swipeOffset by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope()
+    var isDrag by remember { mutableStateOf(true) }
+
     SwipeArea(
         modifier = modifier,
         onSwipeUp = {
             amount = -amount
             amountColor = Color.Red
+            isDrag = false
+            scope.launch {
+                animateOffset.snapTo(swipeOffset)
+                launch {
+                    animateOffset.animateTo(
+                        -500f,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                    animateOffset.snapTo(0f)
+                    swipeOffset = 0f
+                    amountColor = Color.White
+                    amountAlpha.snapTo(1f)
+                    isDrag = true
+                }
+                launch {
+                    amountAlpha.animateTo(
+                        0f,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            }
         },
         onSwipeDown = {
             amountColor = Color.Green
+            isDrag = false
+            scope.launch {
+                animateOffset.snapTo(swipeOffset)
+                launch {
+                    animateOffset.animateTo(
+                        500f,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                    animateOffset.snapTo(0f)
+                    swipeOffset = 0f
+                    amountColor = Color.White
+                    amountAlpha.snapTo(1f)
+                    isDrag = true
+                }
+                launch {
+                    amountAlpha.animateTo(
+                        0f,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            }
         },
         onSwipeEnd = {
-            amountOffset = 0f
+            swipeOffset = 0f
             incomeAlpha = 1f
             expenditureAlpha = 1f
         },
         onDragDown = {
-            amountOffset = it
+            swipeOffset = it
             incomeAlpha = -it/200f+1
             expenditureAlpha = it/200f+1
                      },
         onDragUp = {
-            amountOffset = it
+            swipeOffset = it
             incomeAlpha = -it/200f+1
             expenditureAlpha = it/200f+1
+        },
+        onDragCancel = {
+            amount =0
+            incomeAlpha = 1f
+            expenditureAlpha = 1f
+            swipeOffset = 0f
+            amountColor = Color.White
         }
     )
+
+    val amountOffset = if(isDrag) swipeOffset else animateOffset.value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -126,7 +201,7 @@ fun TransactionInput(modifier: Modifier = Modifier) {
                                y = amountOffset.roundToInt()
                            )
                        },
-                   color = amountColor,
+                   color = amountColor.copy(alpha = amountAlpha.value),
                    fontSize = 80.sp,
                    textAlign = TextAlign.End,
                    lineHeight = 1.em,

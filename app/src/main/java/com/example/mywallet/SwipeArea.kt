@@ -15,7 +15,8 @@ fun SwipeArea(
     onSwipeDown: () -> Unit,
     onSwipeEnd: () -> Unit,
     onDragUp: (Amount: Float) -> Unit,
-    onDragDown: (Amount: Float) -> Unit
+    onDragDown: (Amount: Float) -> Unit,
+    onDragCancel: () -> Unit,
 ) {
     val minDistance = 300f
 
@@ -47,7 +48,6 @@ fun SwipeArea(
                         if(dragAmount.y != 0f) if (dragAmount.y < 0f) onDragUp(moveY) else onDragDown(moveY)
                     },
                     onDragEnd = {
-                        onSwipeEnd()
                         if (
                             abs(totalY) >= minDistance &&
                             abs(totalY) > abs(totalX)
@@ -57,10 +57,13 @@ fun SwipeArea(
                             } else {
                                 onSwipeDown()
                             }
+                        } else {
+                            onSwipeEnd()
                         }
                     },
 
                     onDragCancel = {
+                        onDragCancel()
                     }
                 )
             }
