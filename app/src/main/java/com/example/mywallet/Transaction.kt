@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mywallet.ui.theme.MywalletTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -62,11 +64,19 @@ fun Transaction(modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     var isDrag by remember { mutableStateOf(true) }
 
+    val application = LocalContext.current.applicationContext as MyWalletApplication
+    val dao = application.database.transactionDao()
+    val factory = TransactionViewModelFactory(dao)
+    val viewModel: TransactionViewModel = viewModel(
+        factory = factory
+    )
+
     SwipeArea(
         modifier = modifier,
         onSwipeUp = {
             amount = -amount
             isDrag = false
+            viewModel.addTransaction(amount.toLong())
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
                 launch {
@@ -98,6 +108,7 @@ fun Transaction(modifier: Modifier = Modifier) {
         },
         onSwipeDown = {
             isDrag = false
+            viewModel.addTransaction(amount.toLong())
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
                 launch {

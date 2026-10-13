@@ -78,7 +78,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         bottomBar = {
             NavigationBar(
                 windowInsets = NavigationBarDefaults.windowInsets,
-                modifier = Modifier.height(90.dp),
+                modifier = Modifier.height(110.dp),
                 containerColor = Color(0xFF1D263A)
             ) {
                 Destination.entries.forEachIndexed { index, destination ->
