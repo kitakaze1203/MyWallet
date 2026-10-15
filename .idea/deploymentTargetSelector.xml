@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-12T14:07:15.408208400Z">
+        <DropdownSelection timestamp="2026-10-15T14:03:26.182324800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-5XJFX8DAAAHYRGUW-9ee3Tq" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\dkita\.android\avd\Xiaomi13T.avd" />
             </handle>
           </Target>
         </DropdownSelection>

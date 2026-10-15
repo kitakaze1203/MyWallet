@@ -86,7 +86,7 @@ fun SwipeArea(
                 var totalX = 0f
                 var totalY = 0f
                 var moveY = 0f
-                var color = Color.White
+                var color = Color(0xFFDFF2FF)
 
                 detectDragGesturesInitial(
                     onDragStart = {
@@ -101,13 +101,13 @@ fun SwipeArea(
                         totalY += dragAmount.y
                         if(totalY < -minDistance){
                             moveY = -minDistance
-                            color = Color.Red
+                            color = Color(0xFFFF6B6B)
                         } else if(totalY > minDistance){
                             moveY = minDistance
-                            color = Color.Green
+                            color = Color(0xFF5EDC8A)
                         } else {
                             moveY = totalY
-                            color = Color.White
+                            color = Color(0xFFDFF2FF)
                         }
                         if(dragAmount.y != 0f) if (dragAmount.y < 0f) onDragUp(moveY,color) else onDragDown(moveY,color)
                     },

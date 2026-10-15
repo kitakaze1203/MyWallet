@@ -1,9 +1,5 @@
 package com.example.mywallet
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -22,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,36 +42,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mywallet.ui.theme.MywalletTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-
 @Composable
-fun Transaction(modifier: Modifier = Modifier) {
-    var amount by remember { mutableIntStateOf(0) }
-    var incomeAlpha by remember { mutableFloatStateOf(1f) }
-    var expenditureAlpha by remember { mutableFloatStateOf(1f) }
-    var amountColor by remember { mutableStateOf(Color.White) }
-    var amountAlpha = remember { Animatable(1f) }
-    val animateOffset = remember { Animatable(0f) }
-    var swipeOffset by remember { mutableFloatStateOf(0f) }
-    val scope = rememberCoroutineScope()
-    var isDrag by remember { mutableStateOf(true) }
-
+fun Transaction(modifier: Modifier = Modifier)
+{
     val application = LocalContext.current.applicationContext as MyWalletApplication
     val dao = application.database.transactionDao()
     val factory = TransactionViewModelFactory(dao)
     val viewModel: TransactionViewModel = viewModel(
         factory = factory
     )
+    TransactionContent{
+        viewModel.addTransaction(it)
+    }
+}
+
+@Composable
+fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Unit) {
+    var amount by remember { mutableIntStateOf(0) }
+    var incomeAlpha by remember { mutableFloatStateOf(1f) }
+    var expenditureAlpha by remember { mutableFloatStateOf(1f) }
+    var amountColor by remember { mutableStateOf(Color(0xFFDFF2FF)) }
+    val amountAlpha = remember { Animatable(1f) }
+    val animateOffset = remember { Animatable(0f) }
+    var swipeOffset by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope()
+    var isDrag by remember { mutableStateOf(true) }
 
     SwipeArea(
         modifier = modifier,
         onSwipeUp = {
             amount = -amount
             isDrag = false
-            viewModel.addTransaction(amount.toLong())
+            addTransaction(amount.toLong())
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
                 launch {
@@ -89,7 +89,7 @@ fun Transaction(modifier: Modifier = Modifier) {
                     )
                     animateOffset.snapTo(0f)
                     swipeOffset = 0f
-                    amountColor = Color.White
+                    amountColor = Color(0xFFDFF2FF)
                     amountAlpha.snapTo(1f)
                     expenditureAlpha = 1f
                     amount = 0
@@ -108,7 +108,7 @@ fun Transaction(modifier: Modifier = Modifier) {
         },
         onSwipeDown = {
             isDrag = false
-            viewModel.addTransaction(amount.toLong())
+            addTransaction(amount.toLong())
             scope.launch {
                 animateOffset.snapTo(swipeOffset)
                 launch {
@@ -121,7 +121,7 @@ fun Transaction(modifier: Modifier = Modifier) {
                     )
                     animateOffset.snapTo(0f)
                     swipeOffset = 0f
-                    amountColor = Color.White
+                    amountColor = Color(0xFFDFF2FF)
                     amountAlpha.snapTo(1f)
                     incomeAlpha = 1f
                     amount = 0
@@ -160,7 +160,7 @@ fun Transaction(modifier: Modifier = Modifier) {
             incomeAlpha = 1f
             expenditureAlpha = 1f
             swipeOffset = 0f
-            amountColor = Color.White
+            amountColor = Color(0xFFDFF2FF)
         }
     ){
         val amountOffset = if(isDrag) swipeOffset else animateOffset.value
@@ -179,7 +179,7 @@ fun Transaction(modifier: Modifier = Modifier) {
                         .weight(1f)
                         .fillMaxWidth()
                         .wrapContentHeight(Alignment.CenterVertically),
-                    color = Color(0xAAFFFFFF).copy(alpha = expenditureAlpha),
+                    color = Color(0xAADFF2FF).copy(alpha = expenditureAlpha),
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 1.em,
@@ -200,14 +200,14 @@ fun Transaction(modifier: Modifier = Modifier) {
                     fontSize = 80.sp,
                     textAlign = TextAlign.End,
                     lineHeight = 1.em,
-                    text = "¥" + amount.toString()
+                    text = "¥$amount"
                 )
                 Text(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                         .wrapContentHeight(Alignment.CenterVertically),
-                    color = Color(0xAAFFFFFF).copy(alpha = incomeAlpha),
+                    color = Color(0xDFF2FF).copy(alpha = incomeAlpha),
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 1.em,
@@ -243,7 +243,7 @@ fun RowButton(
     amount: Int,
     amountChange: (Int)->Unit)
 {
-    Row(modifier = Modifier.fillMaxWidth(),
+    Row(modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     )
     {
@@ -258,7 +258,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
 {
     val targetText = stringResource(R.string.delete)
     Button(
-        modifier = Modifier
+        modifier = modifier
             .size(100.dp),
         onClick = {
             if(text == "00"){
@@ -289,6 +289,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
                 textAlign = TextAlign.Center,
                 fontSize = 40.sp,
                 text = text,
+                color = Color(0xFFDFF2FF),
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(
                         includeFontPadding = false
@@ -300,10 +301,9 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
 }
 
 
-@Preview(showBackground = true)
+@Preview(backgroundColor = 0xFF171824)
 @Composable
-fun test()
+fun Test()
 {
-    //Buttons(text = stringResource(R.string.delete),amount = 0, amountChange = {})
-    Transaction()
+    TransactionContent { }
 }
