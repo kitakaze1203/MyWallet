@@ -31,22 +31,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.time.YearMonth
 
 @Composable
 fun Balance()
 {
     val application = LocalContext.current.applicationContext as MyWalletApplication
     val dao = application.database.transactionDao()
-    val factory = TransactionViewModelFactory(dao)
-    val viewModel: TransactionViewModel = viewModel(
+    val factory = BalanceViewModelFactory(dao)
+    val viewModel: BalanceViewModel = viewModel(
         factory = factory
     )
     viewModel.showBalance()
-    BalanceContent(balance = viewModel.balance)
+    viewModel.showMonthlyTotal(YearMonth.now())
+    viewModel.showMonthlyGrossTotal(YearMonth.now())
+    viewModel.showMonthlyExpenseTotal(YearMonth.now())
+    BalanceContent(
+        balance = viewModel.balance,
+        monthlyTotal = viewModel.monthlyTotal,
+        monthlyGross = viewModel.monthlyGrossTotal,
+        monthlyExpense = viewModel.monthlyExpenseTotal)
 }
 
 @Composable
-fun BalanceContent(modifier: Modifier = Modifier, balance: Long){
+fun BalanceContent(modifier: Modifier = Modifier,
+                   balance: Long,
+                   monthlyTotal: Long,
+                   monthlyGross: Long,
+                   monthlyExpense: Long){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -125,7 +137,7 @@ fun BalanceContent(modifier: Modifier = Modifier, balance: Long){
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
-                    text = "¥100000",
+                    text = "¥$monthlyTotal",
                     color = Color(0xFFDFF2FF),
                     textAlign = TextAlign.End
                 )
@@ -164,7 +176,7 @@ fun BalanceContent(modifier: Modifier = Modifier, balance: Long){
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
-                    text = "¥100000",
+                    text = "¥$monthlyExpense",
                     color = Color(0xFFDFF2FF),
                     textAlign = TextAlign.End
                 )
@@ -203,7 +215,7 @@ fun BalanceContent(modifier: Modifier = Modifier, balance: Long){
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
-                    text = "¥100000",
+                    text = "¥$monthlyGross",
                     color = Color(0xFFDFF2FF),
                     textAlign = TextAlign.End
                 )
@@ -215,5 +227,9 @@ fun BalanceContent(modifier: Modifier = Modifier, balance: Long){
 @Preview (backgroundColor = 0xFF171824)
 @Composable
 fun TestBalance() {
-    BalanceContent(balance = 1000000L)
+    BalanceContent(
+        balance = 1000000L,
+        monthlyTotal = 10000L,
+        monthlyExpense = 10000L,
+        monthlyGross = 10000L)
 }

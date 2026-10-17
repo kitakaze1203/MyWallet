@@ -14,13 +14,7 @@ class TransactionViewModel(
     private val dao: TransactionDao
 ) : ViewModel() {
 
-    private var _balance by mutableStateOf(0L)
-    private var _totalBetween by mutableStateOf(0L)
-    val balance: Long
-        get() = _balance
 
-    val totalBetween: Long
-        get() = _totalBetween
     fun addTransaction(amount: Long) {
         viewModelScope.launch {
             dao.insert(
@@ -29,12 +23,6 @@ class TransactionViewModel(
                     timestamp = System.currentTimeMillis()
                 )
             )
-        }
-    }
-
-    fun showBalance(){
-        viewModelScope.launch {
-            _balance = dao.getTotal() ?: 0L
         }
     }
 }

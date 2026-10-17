@@ -22,4 +22,28 @@ interface TransactionDao {
         start: Long,
         end: Long
     ): Long?
+
+    @Query("""
+        SELECT SUM(amount)
+        FROM `Transaction`
+        WHERE amount<0
+        AND timestamp >= :start
+        AND timestamp < :end
+    """)
+    suspend fun getExpenseTotalBetween(
+        start: Long,
+        end: Long
+    ): Long?
+
+    @Query("""
+        SELECT SUM(amount)
+        FROM `Transaction`
+        WHERE amount>0
+        AND timestamp >= :start
+        AND timestamp < :end
+    """)
+    suspend fun getGrossTotalBetween(
+        start: Long,
+        end: Long
+    ): Long?
 }
