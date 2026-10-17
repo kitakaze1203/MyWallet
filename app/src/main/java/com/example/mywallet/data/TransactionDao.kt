@@ -12,4 +12,14 @@ interface TransactionDao {
 
     @Query("SELECT SUM(amount) FROM `Transaction`")
     suspend fun getTotal(): Long?
+
+    @Query("""
+        SELECT SUM(amount)
+        FROM `Transaction`
+        WHERE timestamp >= :start
+        AND timestamp < :end""")
+    suspend fun getTotalBetween(
+        start: Long,
+        end: Long
+    ): Long?
 }

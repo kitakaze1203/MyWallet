@@ -15,8 +15,12 @@ class TransactionViewModel(
 ) : ViewModel() {
 
     private var _balance by mutableStateOf(0L)
+    private var _totalBetween by mutableStateOf(0L)
     val balance: Long
         get() = _balance
+
+    val totalBetween: Long
+        get() = _totalBetween
     fun addTransaction(amount: Long) {
         viewModelScope.launch {
             dao.insert(
