@@ -1,6 +1,5 @@
 package com.example.mywallet
 
-import android.R.attr.contentDescription
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -29,6 +28,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mywallet.balance.Balance
+import com.example.mywallet.history.History
+import com.example.mywallet.setting.Setting
+import com.example.mywallet.transaction.Transaction
 
 enum class Destination(
     val route: String,

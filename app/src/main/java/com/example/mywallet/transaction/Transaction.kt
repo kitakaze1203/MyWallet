@@ -1,4 +1,4 @@
-package com.example.mywallet
+package com.example.mywallet.transaction
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -50,9 +50,9 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun Transaction(modifier: Modifier = Modifier)
+fun Transaction()
 {
-    val application = LocalContext.current.applicationContext as MyWalletApplication
+    val application = LocalContext.current.applicationContext as com.example.mywallet.MyWalletApplication
     val dao = application.database.transactionDao()
     val factory = TransactionViewModelFactory(dao)
     val viewModel: TransactionViewModel = viewModel(
@@ -151,24 +151,24 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
         onDragDown = { amount, color ->
             amountColor = color
             swipeOffset = amount
-            incomeAlpha = -amount/200f+1
-            expenditureAlpha = amount/200f+1
+            incomeAlpha = -amount / 200f + 1
+            expenditureAlpha = amount / 200f + 1
         },
         onDragUp = { amount, color ->
             amountColor = color
             swipeOffset = amount
-            incomeAlpha = -amount/200f+1
-            expenditureAlpha = amount/200f+1
+            incomeAlpha = -amount / 200f + 1
+            expenditureAlpha = amount / 200f + 1
         },
         onDragCancel = {
-            amount =0
+            amount = 0
             incomeAlpha = 1f
             expenditureAlpha = 1f
             swipeOffset = 0f
             amountColor = Color(0xFFDFF2FF)
         }
-    ){
-        val amountOffset = if(isDrag) swipeOffset else animateOffset.value
+    ) {
+        val amountOffset = if (isDrag) swipeOffset else animateOffset.value
 
         Column(
             modifier = Modifier
@@ -178,7 +178,8 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxSize()
-                    .padding(30.dp),){
+                    .padding(30.dp),
+            ) {
                 Text(
                     modifier = Modifier
                         .weight(1f)
@@ -212,7 +213,7 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
                         .weight(1f)
                         .fillMaxWidth()
                         .wrapContentHeight(Alignment.CenterVertically),
-                    color = Color(0xDFF2FF).copy(alpha = incomeAlpha),
+                    color = Color(0xFFDFF2FF).copy(alpha = incomeAlpha),
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 1.em,
@@ -226,20 +227,38 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                if(buttonLayout){
-                    LRSwitcher(buttonLayout = buttonLayout, text = "◀", onClick = {buttonLayout = !buttonLayout})
+                if (buttonLayout) {
+                    LRSwitcher(text = "◀", onClick = { buttonLayout = !buttonLayout })
                     Spacer(modifier = Modifier.size(10.dp))
                 }
 
-                ColumnButton(textFirst = "7", textSecond = "4", textThird = "1", textForce = "0", amount = amount, amountChange = {amount = it})
+                ColumnButton(
+                    textFirst = "7",
+                    textSecond = "4",
+                    textThird = "1",
+                    textForce = "0",
+                    amount = amount,
+                    amountChange = { amount = it })
                 Spacer(modifier = Modifier.size(10.dp))
-                ColumnButton(textFirst = "8", textSecond = "5", textThird = "2", textForce = "00",amount = amount, amountChange = {amount = it})
+                ColumnButton(
+                    textFirst = "8",
+                    textSecond = "5",
+                    textThird = "2",
+                    textForce = "00",
+                    amount = amount,
+                    amountChange = { amount = it })
                 Spacer(modifier = Modifier.size(10.dp))
-                ColumnButton(textFirst = "9", textSecond = "6", textThird = "3", textForce = "⇐",amount = amount, amountChange = {amount = it})
+                ColumnButton(
+                    textFirst = "9",
+                    textSecond = "6",
+                    textThird = "3",
+                    textForce = "⇐",
+                    amount = amount,
+                    amountChange = { amount = it })
 
-                if(!buttonLayout){
+                if (!buttonLayout) {
                     Spacer(modifier = Modifier.size(10.dp))
-                    LRSwitcher(buttonLayout = buttonLayout, text = "▶", onClick = {buttonLayout = !buttonLayout})
+                    LRSwitcher(text = "▶", onClick = { buttonLayout = !buttonLayout })
                 }
             }
         }
@@ -270,7 +289,7 @@ fun ColumnButton(
 @Composable
 fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange: (Int)->Unit)
 {
-    val targetText = stringResource(R.string.delete)
+    val targetText = stringResource(_root_ide_package_.com.example.mywallet.R.string.delete)
     Button(
         modifier = modifier
             .size(90.dp),
@@ -294,7 +313,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
     ) {
         if (text == targetText) {
             Icon(
-                painter = painterResource(id = R.drawable.outline_arrow_back_24),
+                painter = painterResource(id = _root_ide_package_.com.example.mywallet.R.drawable.outline_arrow_back_24),
                 contentDescription = "戻る",
                 modifier = Modifier.size(40.dp)
             )
@@ -315,7 +334,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
 }
 
 @Composable
-fun LRSwitcher(buttonLayout: Boolean,text: String, onClick: ()->Unit)
+fun LRSwitcher(text: String, onClick: ()->Unit)
 {
     Button(
         onClick = onClick,

@@ -1,4 +1,4 @@
-package com.example.mywallet
+package com.example.mywallet.setting
 
 import androidx.compose.runtime.Composable
 

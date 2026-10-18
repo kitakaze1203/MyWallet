@@ -1,4 +1,4 @@
-package com.example.mywallet
+package com.example.mywallet.history
 
 import androidx.compose.runtime.Composable
 
