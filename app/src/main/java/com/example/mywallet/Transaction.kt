@@ -8,13 +8,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
@@ -70,6 +74,7 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
     var swipeOffset by remember { mutableFloatStateOf(0f) }
     val scope = rememberCoroutineScope()
     var isDrag by remember { mutableStateOf(true) }
+    var buttonLayout by remember { mutableStateOf(true) } //trueで右配置, falseで左配置
 
     SwipeArea(
         modifier = modifier,
@@ -214,42 +219,51 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
                     text = "↑スワイプで出金"
                 )
             }
-            Column(
+            Row(
                 modifier = Modifier
                     .weight(1.4f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                RowButton(textFirst = "7", textSecond = "8", textThird = "9", amount = amount, amountChange = {amount = it})
+                if(buttonLayout){
+                    LRSwitcher(buttonLayout = buttonLayout, text = "◀", onClick = {buttonLayout = !buttonLayout})
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+
+                ColumnButton(textFirst = "7", textSecond = "4", textThird = "1", textForce = "0", amount = amount, amountChange = {amount = it})
                 Spacer(modifier = Modifier.size(10.dp))
-                RowButton(textFirst = "4", textSecond = "5", textThird = "6", amount = amount, amountChange = {amount = it})
+                ColumnButton(textFirst = "8", textSecond = "5", textThird = "2", textForce = "00",amount = amount, amountChange = {amount = it})
                 Spacer(modifier = Modifier.size(10.dp))
-                RowButton(textFirst = "1", textSecond = "2", textThird = "3", amount = amount, amountChange = {amount = it})
-                Spacer(modifier = Modifier.size(10.dp))
-                RowButton(textFirst = "0", textSecond = "00", textThird = "⇐", amount = amount, amountChange = {amount = it})
-                Spacer(modifier = Modifier.size(10.dp))
+                ColumnButton(textFirst = "9", textSecond = "6", textThird = "3", textForce = "⇐",amount = amount, amountChange = {amount = it})
+
+                if(!buttonLayout){
+                    Spacer(modifier = Modifier.size(10.dp))
+                    LRSwitcher(buttonLayout = buttonLayout, text = "▶", onClick = {buttonLayout = !buttonLayout})
+                }
             }
         }
     }
 }
 
 @Composable
-fun RowButton(
+fun ColumnButton(
     modifier: Modifier = Modifier,
     textFirst: String,
     textSecond: String,
     textThird: String,
+    textForce: String,
     amount: Int,
     amountChange: (Int)->Unit)
 {
-    Row(modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
+    Column(modifier = modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceEvenly
     )
     {
         Buttons(text = textFirst, amount = amount, amountChange = amountChange)
         Buttons(text = textSecond, amount = amount, amountChange = amountChange)
         Buttons(text = textThird, amount = amount, amountChange = amountChange)
+        Buttons(text = textForce, amount = amount, amountChange = amountChange)
     }
 }
 
@@ -259,7 +273,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
     val targetText = stringResource(R.string.delete)
     Button(
         modifier = modifier
-            .size(100.dp),
+            .size(90.dp),
         onClick = {
             if(text == "00"){
                 if(amount * 100 < 999999) amountChange(amount * 100) else amountChange(999999)
@@ -300,10 +314,41 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange:
     }
 }
 
+@Composable
+fun LRSwitcher(buttonLayout: Boolean,text: String, onClick: ()->Unit)
+{
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(50.dp)
+            .height(350.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonColors(
+            containerColor = Color(0xFF2A4373),
+            contentColor = Color.White,
+            disabledContainerColor = Color(0xFF2A4373),
+            disabledContentColor = Color.White
+        ),
+    ){
+        Text(
+            textAlign = TextAlign.Center,
+            fontSize = 40.sp,
+            text = text,
+            color = Color(0xFFDFF2FF),
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(
+                    includeFontPadding = false
+                )
+            )
+        )
+    }
+    Spacer(modifier = Modifier.size(10.dp))
+}
+
 
 @Preview(backgroundColor = 0xFF171824)
 @Composable
 fun Test()
 {
-    TransactionContent { }
+    TransactionContent() { }
 }
