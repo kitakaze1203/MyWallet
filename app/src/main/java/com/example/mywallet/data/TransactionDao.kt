@@ -46,4 +46,10 @@ interface TransactionDao {
         start: Long,
         end: Long
     ): Long?
+
+    @Query("""
+        SELECT * FROM `Transaction`
+        ORDER BY timestamp DESC
+    """)
+    suspend fun getAll(): List<Transaction>
 }
