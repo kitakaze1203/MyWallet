@@ -1,6 +1,7 @@
 package com.example.mywallet.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,17 +11,36 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -146,13 +166,103 @@ fun HistoryCard(modifier: Modifier = Modifier, transaction: Transaction){
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = "¥${transaction.amount}",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
+                Label()
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = "¥${transaction.amount}",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Label(modifier: Modifier = Modifier){
+
+    var expanded by remember{ mutableStateOf(false) }
+    var selected by remember{ mutableStateOf("1")}
+    val interactionSource = remember { MutableInteractionSource() }
+
+
+    val options = listOf("1","2","3","4")
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {expanded = it},
+        modifier = Modifier
+            .width(120.dp)
+            .height(40.dp)
+    ) {
+        BasicTextField(
+            value = selected,
+            onValueChange = {},
+            readOnly = true,
+            textStyle = LocalTextStyle.current.copy(
+                fontSize = 15.sp,
+                color = Color(0xFFDFF2FF),
+                fontWeight = FontWeight.SemiBold
+            ),
+            singleLine = true,
+            interactionSource = interactionSource,
+            modifier = Modifier
+                .fillMaxSize()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            decorationBox = { innerTextField ->
+                TextFieldDefaults.DecorationBox(
+                    value = selected,
+                    innerTextField = innerTextField,
+                    enabled = true,
+                    singleLine = true,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = interactionSource,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
+                        top = 0.dp,
+                        bottom = 0.dp
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF3A4770),
+                        unfocusedContainerColor = Color(0xFF3A4770),
+                        focusedTrailingIconColor = Color(0xFF8796BA),
+                        unfocusedTrailingIconColor = Color(0xFF8796BA),
+                        focusedIndicatorColor = Color(0xFF3A4770),
+                        unfocusedIndicatorColor = Color(0xFF3A4770)
+                        )
+                )
+            }
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {expanded = false},
+            containerColor = Color(0xFF25283A)
+        ) {
+            options.forEach { option ->
+
+                val isSelected = option == selected
+
+                DropdownMenuItem(
+                    text = { Text(
+                        text = option,
+                        color = if(isSelected) Color.White else Color(0xFFE5EBF8)
+                    )},
+                    onClick = {
+                        selected = option
+                        expanded = false
+                    },
+                    modifier = Modifier.background(
+                        color = if(isSelected) Color(0xFF465581) else Color(0xFF25283A)
+                    )
+                )
+            }
+        }
+
     }
 }
 
