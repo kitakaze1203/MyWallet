@@ -52,4 +52,14 @@ interface TransactionDao {
         ORDER BY timestamp DESC
     """)
     suspend fun getAll(): List<Transaction>
+
+    @Query("""
+        UPDATE `Transaction`
+        SET label = :label
+        WHERE id = :id
+    """)
+    suspend fun setLabel(
+        label: String,
+        id: Long
+    )
 }

@@ -10,5 +10,7 @@ data class Transaction(
 
     val amount: Long,
 
-    val timestamp: Long
+    val timestamp: Long,
+
+    val label: String?
 )

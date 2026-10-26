@@ -21,4 +21,10 @@ class HistoryViewModel(
             transactions = dao.getAll()
         }
     }
+
+    fun setLabel(label:String, id:Long){
+        viewModelScope.launch {
+            dao.setLabel(label = label,id=id)
+        }
+    }
 }

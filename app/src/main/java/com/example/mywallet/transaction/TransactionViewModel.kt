@@ -20,7 +20,8 @@ class TransactionViewModel(
             dao.insert(
                 Transaction(
                     amount = amount,
-                    timestamp = System.currentTimeMillis()
+                    timestamp = System.currentTimeMillis(),
+                    label = null
                 )
             )
         }

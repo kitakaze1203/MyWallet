@@ -59,37 +59,44 @@ val dummyTransactions = listOf(
     Transaction(
         id = 1,
         amount = -1000L,
-        timestamp = 1760972400000L
+        timestamp = 1760972400000L,
+        label = null
     ),
     Transaction(
         id = 2,
         amount = 3000L,
-        timestamp = 1761058800000L
+        timestamp = 1761058800000L,
+        label = null
     ),
     Transaction(
         id = 3,
         amount = -500L,
-        timestamp = 1761145200000L
+        timestamp = 1761145200000L,
+        label = null
     ),
     Transaction(
         id = 4,
         amount = -500L,
-        timestamp = 1761145200000L
+        timestamp = 1761145200000L,
+        label = null
     ),
     Transaction(
         id = 5,
         amount = -500L,
-        timestamp = 1761145200000L
+        timestamp = 1761145200000L,
+        label = null
     ),
     Transaction(
         id = 6,
         amount = -500L,
-        timestamp = 1761145200000L
+        timestamp = 1761145200000L,
+        label = null
     ),
     Transaction(
         id = 7,
         amount = -500L,
-        timestamp = 1761145200000L
+        timestamp = 1761145200000L,
+        label = null
     )
 )
 @Composable
@@ -103,13 +110,14 @@ fun History(){
 
     viewModel.getTransactions()
 
-    HistoryContent(transactions = viewModel.transactions)
+    HistoryContent(transactions = viewModel.transactions, onSetLabel = viewModel::setLabel)
 }
 
 @Composable
 fun HistoryContent(
     modifier: Modifier = Modifier,
-    transactions: List<Transaction>
+    transactions: List<Transaction>,
+    onSetLabel: (String, Long) -> Unit
 ){
     Column(
         modifier = modifier
@@ -131,7 +139,9 @@ fun HistoryContent(
             items(transactions){ transaction ->
                 HistoryCard(
                     transaction = transaction,
-                    modifier = Modifier.padding(10.dp))
+                    modifier = Modifier.padding(10.dp),
+                    onSetLabel = onSetLabel
+                )
             }
         }
 
@@ -139,7 +149,11 @@ fun HistoryContent(
 }
 
 @Composable
-fun HistoryCard(modifier: Modifier = Modifier, transaction: Transaction){
+fun HistoryCard(
+    modifier: Modifier = Modifier,
+    transaction: Transaction,
+    onSetLabel: (String, Long) -> Unit
+){
 
     val date = Instant
         .ofEpochMilli(transaction.timestamp)
@@ -169,7 +183,7 @@ fun HistoryCard(modifier: Modifier = Modifier, transaction: Transaction){
             Column(
                 horizontalAlignment = Alignment.End,
             ) {
-                Label()
+                Label(transaction = transaction, onSetLabel = onSetLabel)
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
                     text = "¥${transaction.amount}",
@@ -183,10 +197,14 @@ fun HistoryCard(modifier: Modifier = Modifier, transaction: Transaction){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Label(modifier: Modifier = Modifier){
+fun Label(
+    modifier: Modifier = Modifier,
+    transaction: Transaction,
+    onSetLabel: (String, Long) -> Unit
+){
 
     var expanded by remember{ mutableStateOf(false) }
-    var selected by remember{ mutableStateOf("1")}
+    var selected by remember{ mutableStateOf(transaction.label ?: "ラベルなし")}
     val interactionSource = remember { MutableInteractionSource() }
 
 
@@ -201,10 +219,10 @@ fun Label(modifier: Modifier = Modifier){
     ) {
         BasicTextField(
             value = selected,
-            onValueChange = {},
+            onValueChange = {onSetLabel(it,transaction.id)},
             readOnly = true,
             textStyle = LocalTextStyle.current.copy(
-                fontSize = 15.sp,
+                fontSize = 13.sp,
                 color = Color(0xFFDFF2FF),
                 fontWeight = FontWeight.SemiBold
             ),
@@ -224,7 +242,9 @@ fun Label(modifier: Modifier = Modifier){
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
                     contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
                         top = 0.dp,
-                        bottom = 0.dp
+                        bottom = 0.dp,
+                        start = 5.dp,
+                        end = 0.dp
                     ),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF3A4770),
@@ -269,5 +289,5 @@ fun Label(modifier: Modifier = Modifier){
 @Preview (backgroundColor = 0xFF171824)
 @Composable
 fun Historytest(){
-    HistoryContent(transactions = dummyTransactions)
+    HistoryContent(transactions = dummyTransactions, onSetLabel = {label,id ->})
 }
