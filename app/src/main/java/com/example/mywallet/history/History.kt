@@ -17,18 +17,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,64 +36,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mywallet.MyWalletApplication
-import com.example.mywallet.balance.BalanceViewModel
-import com.example.mywallet.balance.BalanceViewModelFactory
 import com.example.mywallet.data.Transaction
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
-import kotlin.time.Duration.Companion.days
+import java.time.temporal.TemporalAmount
+import java.util.Locale
+import kotlin.math.absoluteValue
 
 
-val dummyTransactions = listOf(
-    Transaction(
-        id = 1,
-        amount = -1000L,
-        timestamp = 1760972400000L,
-        label = null
-    ),
-    Transaction(
-        id = 2,
-        amount = 3000L,
-        timestamp = 1761058800000L,
-        label = null
-    ),
-    Transaction(
-        id = 3,
-        amount = -500L,
-        timestamp = 1761145200000L,
-        label = null
-    ),
-    Transaction(
-        id = 4,
-        amount = -500L,
-        timestamp = 1761145200000L,
-        label = null
-    ),
-    Transaction(
-        id = 5,
-        amount = -500L,
-        timestamp = 1761145200000L,
-        label = null
-    ),
-    Transaction(
-        id = 6,
-        amount = -500L,
-        timestamp = 1761145200000L,
-        label = null
-    ),
-    Transaction(
-        id = 7,
-        amount = -500L,
-        timestamp = 1761145200000L,
-        label = null
-    )
-)
 @Composable
 fun History(){
     val application = LocalContext.current.applicationContext as MyWalletApplication
@@ -186,12 +137,21 @@ fun HistoryCard(
                 Label(transaction = transaction, onSetLabel = onSetLabel)
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "¥${transaction.amount}",
+                    text = formatAmount(amount = transaction.amount),
                     fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = if(transaction.amount<0) Color(0xFFFF6B6B) else Color(0xFF65D69A)
                 )
             }
         }
+    }
+}
+
+fun formatAmount(amount: Long):String{
+    if(amount<0){
+        return "-¥${NumberFormat.getNumberInstance(Locale.JAPAN).format(amount.absoluteValue)}"
+    } else {
+        return "¥${NumberFormat.getNumberInstance(Locale.JAPAN).format(amount)}"
     }
 }
 
@@ -208,7 +168,7 @@ fun Label(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    val options = listOf("1","2","3","4")
+    val options = listOf("食費","買い物","推し活","調整")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -273,7 +233,7 @@ fun Label(
                         color = if(isSelected) Color.White else Color(0xFFE5EBF8)
                     )},
                     onClick = {
-                        selected = option
+//                        selected = option
                         expanded = false
                     },
                     modifier = Modifier.background(
@@ -288,6 +248,50 @@ fun Label(
 
 @Preview (backgroundColor = 0xFF171824)
 @Composable
-fun Historytest(){
+fun HistoryTest(){
+    val dummyTransactions = listOf(
+        Transaction(
+            id = 1,
+            amount = -1000L,
+            timestamp = 1760972400000L,
+            label = null
+        ),
+        Transaction(
+            id = 2,
+            amount = 3000L,
+            timestamp = 1761058800000L,
+            label = null
+        ),
+        Transaction(
+            id = 3,
+            amount = -500L,
+            timestamp = 1761145200000L,
+            label = null
+        ),
+        Transaction(
+            id = 4,
+            amount = -500L,
+            timestamp = 1761145200000L,
+            label = null
+        ),
+        Transaction(
+            id = 5,
+            amount = -500L,
+            timestamp = 1761145200000L,
+            label = null
+        ),
+        Transaction(
+            id = 6,
+            amount = -500L,
+            timestamp = 1761145200000L,
+            label = null
+        ),
+        Transaction(
+            id = 7,
+            amount = -500L,
+            timestamp = 1761145200000L,
+            label = null
+        )
+    )
     HistoryContent(transactions = dummyTransactions, onSetLabel = {label,id ->})
 }

@@ -137,7 +137,7 @@ fun BalanceContent(modifier: Modifier = Modifier,
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
                     text = "¥$monthlyTotal",
-                    color = Color(0xFFDFF2FF),
+                    color = if(monthlyTotal<0) Color(0xFFFF6B6B) else Color(0xFF65D69A),
                     textAlign = TextAlign.End
                 )
             }
@@ -176,7 +176,7 @@ fun BalanceContent(modifier: Modifier = Modifier,
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
                     text = "¥$monthlyExpense",
-                    color = Color(0xFFDFF2FF),
+                    color = Color(0xFFFF6B6B),
                     textAlign = TextAlign.End
                 )
             }
@@ -215,7 +215,7 @@ fun BalanceContent(modifier: Modifier = Modifier,
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
                     text = "¥$monthlyGross",
-                    color = Color(0xFFDFF2FF),
+                    color = Color(0xFF65D69A),
                     textAlign = TextAlign.End
                 )
             }
