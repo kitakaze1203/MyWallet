@@ -17,7 +17,9 @@ interface TransactionDao {
         SELECT SUM(amount)
         FROM `Transaction`
         WHERE timestamp >= :start
-        AND timestamp < :end""")
+        AND timestamp < :end
+        AND label != "調整" OR label IS NULL
+        """)
     suspend fun getTotalBetween(
         start: Long,
         end: Long
@@ -29,6 +31,7 @@ interface TransactionDao {
         WHERE amount<0
         AND timestamp >= :start
         AND timestamp < :end
+        AND label != "調整" OR label IS NULL
     """)
     suspend fun getExpenseTotalBetween(
         start: Long,
@@ -41,6 +44,7 @@ interface TransactionDao {
         WHERE amount>0
         AND timestamp >= :start
         AND timestamp < :end
+        AND label != "調整" OR label IS NULL
     """)
     suspend fun getGrossTotalBetween(
         start: Long,

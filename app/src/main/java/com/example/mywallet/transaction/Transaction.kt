@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mywallet.module.formatAmount
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -65,7 +67,7 @@ fun Transaction()
 
 @Composable
 fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Unit) {
-    var amount by remember { mutableIntStateOf(0) }
+    var amount by remember { mutableLongStateOf(0) }
     var incomeAlpha by remember { mutableFloatStateOf(1f) }
     var expenditureAlpha by remember { mutableFloatStateOf(1f) }
     var amountColor by remember { mutableStateOf(Color(0xFFDFF2FF)) }
@@ -206,7 +208,7 @@ fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Un
                     fontSize = 80.sp,
                     textAlign = TextAlign.End,
                     lineHeight = 1.em,
-                    text = "¥$amount"
+                    text = formatAmount(amount)
                 )
                 Text(
                     modifier = Modifier
@@ -272,8 +274,8 @@ fun ColumnButton(
     textSecond: String,
     textThird: String,
     textForce: String,
-    amount: Int,
-    amountChange: (Int)->Unit)
+    amount: Long,
+    amountChange: (Long)->Unit)
 {
     Column(modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceEvenly
@@ -287,7 +289,7 @@ fun ColumnButton(
 }
 
 @Composable
-fun Buttons(modifier: Modifier = Modifier,text: String,amount: Int,amountChange: (Int)->Unit)
+fun Buttons(modifier: Modifier = Modifier,text: String,amount: Long,amountChange: (Long)->Unit)
 {
     val targetText = stringResource(_root_ide_package_.com.example.mywallet.R.string.delete)
     Button(

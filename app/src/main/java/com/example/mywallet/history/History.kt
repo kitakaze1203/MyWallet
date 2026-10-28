@@ -42,14 +42,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mywallet.MyWalletApplication
 import com.example.mywallet.data.Transaction
-import java.text.NumberFormat
+import com.example.mywallet.module.formatAmount
 import java.time.Instant
 import java.time.ZoneId
-import java.time.temporal.TemporalAmount
-import java.util.Locale
-import kotlin.math.absoluteValue
-
-
 @Composable
 fun History(){
     val application = LocalContext.current.applicationContext as MyWalletApplication
@@ -147,14 +142,6 @@ fun HistoryCard(
     }
 }
 
-fun formatAmount(amount: Long):String{
-    if(amount<0){
-        return "-¥${NumberFormat.getNumberInstance(Locale.JAPAN).format(amount.absoluteValue)}"
-    } else {
-        return "¥${NumberFormat.getNumberInstance(Locale.JAPAN).format(amount)}"
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Label(
@@ -168,7 +155,7 @@ fun Label(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    val options = listOf("食費","買い物","推し活","調整")
+    val options = listOf("食費","買い物","推し活","調整","その他")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -233,7 +220,7 @@ fun Label(
                         color = if(isSelected) Color.White else Color(0xFFE5EBF8)
                     )},
                     onClick = {
-//                        selected = option
+                        selected = option
                         expanded = false
                     },
                     modifier = Modifier.background(
