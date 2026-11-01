@@ -66,4 +66,12 @@ interface TransactionDao {
         label: String,
         id: Long
     )
+
+    @Query("""
+        SELECT SUM(amount) FROM `Transaction`
+        WHERE label == :label
+    """)
+    suspend fun getLabelTotal(
+        label: String,
+    ): Long?
 }

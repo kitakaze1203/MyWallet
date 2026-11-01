@@ -155,7 +155,7 @@ fun Label(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    val options = listOf("食費","買い物","推し活","調整","その他")
+    val options = listOf("食費","買い物","推し活","調整","給料","その他")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -166,7 +166,7 @@ fun Label(
     ) {
         BasicTextField(
             value = selected,
-            onValueChange = {onSetLabel(it,transaction.id)},
+            onValueChange = {},
             readOnly = true,
             textStyle = LocalTextStyle.current.copy(
                 fontSize = 13.sp,
@@ -222,6 +222,7 @@ fun Label(
                     onClick = {
                         selected = option
                         expanded = false
+                        onSetLabel(selected,transaction.id)
                     },
                     modifier = Modifier.background(
                         color = if(isSelected) Color(0xFF465581) else Color(0xFF25283A)
@@ -233,7 +234,7 @@ fun Label(
     }
 }
 
-@Preview (backgroundColor = 0xFF171824)
+@Preview (backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun HistoryTest(){
     val dummyTransactions = listOf(

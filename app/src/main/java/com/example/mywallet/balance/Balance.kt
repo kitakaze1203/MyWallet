@@ -30,7 +30,9 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,15 +63,25 @@ fun Balance()
     val viewModel: BalanceViewModel = viewModel(
         factory = factory
     )
-    viewModel.showBalance()
-    viewModel.showMonthlyTotal(YearMonth.now())
-    viewModel.showMonthlyGrossTotal(YearMonth.now())
-    viewModel.showMonthlyExpenseTotal(YearMonth.now())
+    val options = listOf("食費","買い物","推し活","調整","給料","その他")
+
+    LaunchedEffect(Unit) {
+        viewModel.showBalance()
+        viewModel.showMonthlyTotal(YearMonth.now())
+        viewModel.showMonthlyGrossTotal(YearMonth.now())
+        viewModel.showMonthlyExpenseTotal(YearMonth.now())
+        options.forEach { label ->
+            viewModel.getLabelTotal(label)
+        }
+    }
+
     BalanceContent(
         balance = viewModel.balance,
         monthlyTotal = viewModel.monthlyTotal,
         monthlyGross = viewModel.monthlyGrossTotal,
-        monthlyExpense = viewModel.monthlyExpenseTotal)
+        monthlyExpense = viewModel.monthlyExpenseTotal,
+        labelTotal = viewModel.labelTotal,
+        options = options)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,13 +90,13 @@ fun BalanceContent(modifier: Modifier = Modifier,
                    balance: Long,
                    monthlyTotal: Long,
                    monthlyGross: Long,
-                   monthlyExpense: Long){
+                   monthlyExpense: Long,
+                   labelTotal: Map<String,Long>,
+                   options: List<String>){
 
     var expanded by remember{ mutableStateOf(false) }
     var selected by remember{ mutableStateOf("ラベル別")}
     val interactionSource = remember { MutableInteractionSource() }
-
-    val options = listOf("食費","買い物","推し活","調整","その他")
 
     Column(
         modifier = Modifier
@@ -245,8 +257,8 @@ fun BalanceContent(modifier: Modifier = Modifier,
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
-                    text = "¥$monthlyGross",
-                    color = if(monthlyGross<0) Color(0xFFFF6B6B) else Color(0xFF65D69A),
+                    text = formatAmount(labelTotal[selected] ?: 0L),
+                    color = if((labelTotal[selected] ?: 0L) < 0L) Color(0xFFFF6B6B) else Color(0xFF65D69A),
                     textAlign = TextAlign.End
                 )
             }
@@ -294,12 +306,15 @@ fun Category(modifier:Modifier = Modifier, text:String, amount:Long, icon: Image
     }
 }
 
-@Preview (backgroundColor = 0xFF171824)
+@Preview (backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestBalance() {
+    val options = listOf("食費","買い物","推し活","調整","その他")
     BalanceContent(
         balance = 1000000L,
         monthlyTotal = 10000L,
         monthlyExpense = -10000L,
-        monthlyGross = 10000L)
+        monthlyGross = 10000L,
+        labelTotal = mapOf("食費" to 100L),
+        options = options)
 }

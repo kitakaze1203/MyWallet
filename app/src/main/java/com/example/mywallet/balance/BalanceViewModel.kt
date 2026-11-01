@@ -24,6 +24,8 @@ class BalanceViewModel(
     var monthlyExpenseTotal by mutableLongStateOf(0L)
         private set
 
+    var labelTotal = mutableMapOf<String,Long>()
+        private set
     var balance by mutableLongStateOf(0L)
         private set
 
@@ -96,6 +98,12 @@ class BalanceViewModel(
     fun showBalance(){
         viewModelScope.launch {
             balance = dao.getTotal() ?:0L
+        }
+    }
+
+    fun getLabelTotal(label: String){
+        viewModelScope.launch {
+            labelTotal[label] = dao.getLabelTotal(label) ?: 0L
         }
     }
 }
