@@ -98,17 +98,20 @@ fun SwipeArea(
 
                         totalX += dragAmount.x
                         totalY += dragAmount.y
-                        if(totalY < -minDistance){
+                        if (totalY < -minDistance) {
                             moveY = -minDistance
                             color = Color(0xFFFF6B6B)
-                        } else if(totalY > minDistance){
+                        } else if (totalY > minDistance) {
                             moveY = minDistance
                             color = Color(0xFF5EDC8A)
                         } else {
                             moveY = totalY
                             color = Color(0xFFDFF2FF)
                         }
-                        if(dragAmount.y != 0f) if (dragAmount.y < 0f) onDragUp(moveY,color) else onDragDown(moveY,color)
+                        if (dragAmount.y != 0f) if (dragAmount.y < 0f) onDragUp(
+                            moveY,
+                            color
+                        ) else onDragDown(moveY, color)
                     },
                     onDragEnd = {
                         if (

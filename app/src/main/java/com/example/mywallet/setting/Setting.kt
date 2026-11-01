@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -22,6 +24,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mywallet.history.HistoryCard
 
 data class Label(
     val labelName: String,
@@ -44,9 +48,16 @@ data class Label(
 )
 
 @Composable
-fun Setting(modifier: Modifier = Modifier){
+fun Setting(modifier: Modifier = Modifier) {
 
-    val labels = mutableListOf(Label(labelName = "調整", expenseDefault = false,grossDefault = false, noDelete = true))
+    val labels = mutableListOf(
+        Label(
+            labelName = "調整",
+            expenseDefault = false,
+            grossDefault = false,
+            noDelete = true
+        )
+    )
 
     Column(
         modifier = modifier
@@ -83,7 +94,8 @@ fun Setting(modifier: Modifier = Modifier){
                 fontSize = 50.sp,
                 text = "ラベル管理",
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFDFF2FF))
+                color = Color(0xFFDFF2FF)
+            )
         }
 
         Spacer(modifier = Modifier.weight(0.3f))
@@ -107,7 +119,8 @@ fun Setting(modifier: Modifier = Modifier){
                 fontSize = 50.sp,
                 text = "サブスク管理",
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFDFF2FF))
+                color = Color(0xFFDFF2FF)
+            )
         }
 
         Spacer(modifier = Modifier.size(100.dp))
@@ -115,7 +128,7 @@ fun Setting(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun LabelSetting(modifier: Modifier = Modifier,labels: List<Label>){
+fun LabelSetting(modifier: Modifier = Modifier, labels: List<Label>) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -128,11 +141,29 @@ fun LabelSetting(modifier: Modifier = Modifier,labels: List<Label>){
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFFDFF2FF)
         )
+
+        Spacer(modifier = modifier.size(50.dp))
+
+        LazyColumn(modifier = modifier) {
+            items(items = labels) { label ->
+                LabelCard(
+                    name = label.labelName,
+                    deleteSet = {},
+                    expDefaultSet = {},
+                    groDefaultSet = {})
+            }
+        }
     }
 }
 
 @Composable
-fun LabelCard(modifier: Modifier = Modifier,delete: ()->Unit,expDefault: ()->Unit,groDefault: ()->Unit){
+fun LabelCard(
+    modifier: Modifier = Modifier,
+    name: String,
+    deleteSet: () -> Unit,
+    expDefaultSet: () -> Unit,
+    groDefaultSet: () -> Unit
+) {
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -141,33 +172,43 @@ fun LabelCard(modifier: Modifier = Modifier,delete: ()->Unit,expDefault: ()->Uni
             .fillMaxWidth()
             .height(100.dp),
         colors = CardDefaults.cardColors(
-            containerColor =  Color(0xFF2D365A),
+            containerColor = Color(0xFF2D365A),
             contentColor = Color(0xFFDFF2FF)
         )
-    ){
+    ) {
         Row(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+                .fillMaxSize()
+                .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically){
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-            Text(text = "ラベル１",
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = name,
                 fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,)
+                fontWeight = FontWeight.Bold,
+            )
 
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                IconButton(onClick = { expanded = !expanded }) {
+            Box {
+                IconButton(
+                    modifier = Modifier.size(45.dp),
+                    onClick = { expanded = !expanded },
+                    colors = IconButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color(0xFFDFF2FF),
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor = Color(0xFFDFF2FF)
+                    )
+                ) {
                     Icon(
-                        modifier = Modifier.size(50.dp),
+                        modifier = Modifier.size(35.dp),
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "ラベル設定メニュー",
-                        tint = Color(0xFFDFF2FF)
+                        contentDescription = "ラベル設定メニュー"
                     )
                 }
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -175,15 +216,15 @@ fun LabelCard(modifier: Modifier = Modifier,delete: ()->Unit,expDefault: ()->Uni
                 ) {
                     DropdownMenuItem(
                         text = { Text(text = "ラベルを削除", color = Color(0xFFDFF2FF)) },
-                        onClick = delete
+                        onClick = deleteSet
                     )
                     DropdownMenuItem(
                         text = { Text(text = "支出デフォルトに設定", color = Color(0xFFDFF2FF)) },
-                        onClick = expDefault
+                        onClick = expDefaultSet
                     )
                     DropdownMenuItem(
                         text = { Text(text = "収入デフォルトに設定", color = Color(0xFFDFF2FF)) },
-                        onClick = groDefault
+                        onClick = groDefaultSet
                     )
                 }
             }
@@ -191,9 +232,18 @@ fun LabelCard(modifier: Modifier = Modifier,delete: ()->Unit,expDefault: ()->Uni
     }
 }
 
-@Preview (backgroundColor = 0xFF171824, showBackground = true)
+@Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
-fun TestSetting(){
-    LabelSetting(labels = listOf(Label("調整", expenseDefault = false, grossDefault = false, noDelete = true)))
+fun TestSetting() {
+    LabelSetting(
+        labels = listOf(
+            Label(
+                "調整",
+                expenseDefault = false,
+                grossDefault = false,
+                noDelete = true
+            )
+        )
+    )
     //LabelCard(delete = {}, expDefault = {}, groDefault = {})
 }

@@ -55,15 +55,14 @@ import com.example.mywallet.module.formatAmount
 import java.time.YearMonth
 
 @Composable
-fun Balance()
-{
+fun Balance() {
     val application = LocalContext.current.applicationContext as MyWalletApplication
     val dao = application.database.transactionDao()
     val factory = BalanceViewModelFactory(dao)
     val viewModel: BalanceViewModel = viewModel(
         factory = factory
     )
-    val options = listOf("食費","買い物","推し活","調整","給料","その他")
+    val options = listOf("食費", "買い物", "推し活", "調整", "給料", "その他")
 
     LaunchedEffect(Unit) {
         viewModel.showBalance()
@@ -81,21 +80,24 @@ fun Balance()
         monthlyGross = viewModel.monthlyGrossTotal,
         monthlyExpense = viewModel.monthlyExpenseTotal,
         labelTotal = viewModel.labelTotal,
-        options = options)
+        options = options
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BalanceContent(modifier: Modifier = Modifier,
-                   balance: Long,
-                   monthlyTotal: Long,
-                   monthlyGross: Long,
-                   monthlyExpense: Long,
-                   labelTotal: Map<String,Long>,
-                   options: List<String>){
+fun BalanceContent(
+    modifier: Modifier = Modifier,
+    balance: Long,
+    monthlyTotal: Long,
+    monthlyGross: Long,
+    monthlyExpense: Long,
+    labelTotal: Map<String, Long>,
+    options: List<String>
+) {
 
-    var expanded by remember{ mutableStateOf(false) }
-    var selected by remember{ mutableStateOf("ラベル別")}
+    var expanded by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf("ラベル別") }
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(
@@ -103,12 +105,12 @@ fun BalanceContent(modifier: Modifier = Modifier,
             .fillMaxSize()
             .padding(30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         Spacer(modifier = Modifier.size(80.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-        ){
+        ) {
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -160,7 +162,7 @@ fun BalanceContent(modifier: Modifier = Modifier,
         Row(
             modifier = modifier
                 .fillMaxWidth()
-        ){
+        ) {
             Box(
                 modifier = Modifier
                     .size(70.dp)
@@ -183,14 +185,14 @@ fun BalanceContent(modifier: Modifier = Modifier,
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onExpandedChange = {expanded = it},
+                    onExpandedChange = { expanded = it },
                     modifier = Modifier
                         .width(150.dp)
                         .height(40.dp)
-                ){
+                ) {
                     BasicTextField(
                         value = selected,
-                        onValueChange = {selected = it},
+                        onValueChange = { selected = it },
                         readOnly = true,
                         textStyle = LocalTextStyle.current.copy(
                             fontSize = 20.sp,
@@ -209,7 +211,12 @@ fun BalanceContent(modifier: Modifier = Modifier,
                                 singleLine = true,
                                 visualTransformation = VisualTransformation.None,
                                 interactionSource = interactionSource,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded, modifier = modifier.size(40.dp))},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                        expanded = expanded,
+                                        modifier = modifier.size(40.dp)
+                                    )
+                                },
                                 contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
                                     top = 0.dp,
                                     bottom = 0.dp,
@@ -230,7 +237,7 @@ fun BalanceContent(modifier: Modifier = Modifier,
 
                     ExposedDropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = {expanded = false},
+                        onDismissRequest = { expanded = false },
                         containerColor = Color(0xFF25283A)
                     ) {
                         options.forEach { option ->
@@ -238,16 +245,18 @@ fun BalanceContent(modifier: Modifier = Modifier,
                             val isSelected = option == selected
 
                             DropdownMenuItem(
-                                text = { Text(
-                                    text = option,
-                                    color = if(isSelected) Color.White else Color(0xFFE5EBF8)
-                                )},
+                                text = {
+                                    Text(
+                                        text = option,
+                                        color = if (isSelected) Color.White else Color(0xFFE5EBF8)
+                                    )
+                                },
                                 onClick = {
                                     selected = option
                                     expanded = false
                                 },
                                 modifier = Modifier.background(
-                                    color = if(isSelected) Color(0xFF465581) else Color(0xFF25283A)
+                                    color = if (isSelected) Color(0xFF465581) else Color(0xFF25283A)
                                 )
                             )
                         }
@@ -258,7 +267,9 @@ fun BalanceContent(modifier: Modifier = Modifier,
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 30.sp,
                     text = formatAmount(labelTotal[selected] ?: 0L),
-                    color = if((labelTotal[selected] ?: 0L) < 0L) Color(0xFFFF6B6B) else Color(0xFF65D69A),
+                    color = if ((labelTotal[selected] ?: 0L) < 0L) Color(0xFFFF6B6B) else Color(
+                        0xFF65D69A
+                    ),
                     textAlign = TextAlign.End
                 )
             }
@@ -267,11 +278,11 @@ fun BalanceContent(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun Category(modifier:Modifier = Modifier, text:String, amount:Long, icon: ImageVector){
+fun Category(modifier: Modifier = Modifier, text: String, amount: Long, icon: ImageVector) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-    ){
+    ) {
         Box(
             modifier = Modifier
                 .size(70.dp)
@@ -299,22 +310,23 @@ fun Category(modifier:Modifier = Modifier, text:String, amount:Long, icon: Image
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 30.sp,
                 text = formatAmount(amount),
-                color = if(amount<0) Color(0xFFFF6B6B) else Color(0xFF65D69A),
+                color = if (amount < 0) Color(0xFFFF6B6B) else Color(0xFF65D69A),
                 textAlign = TextAlign.End
             )
         }
     }
 }
 
-@Preview (backgroundColor = 0xFF171824, showBackground = true)
+@Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestBalance() {
-    val options = listOf("食費","買い物","推し活","調整","その他")
+    val options = listOf("食費", "買い物", "推し活", "調整", "その他")
     BalanceContent(
         balance = 1000000L,
         monthlyTotal = 10000L,
         monthlyExpense = -10000L,
         monthlyGross = 10000L,
         labelTotal = mapOf("食費" to 100L),
-        options = options)
+        options = options
+    )
 }

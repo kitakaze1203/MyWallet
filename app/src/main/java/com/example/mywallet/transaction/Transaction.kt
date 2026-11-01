@@ -52,21 +52,21 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun Transaction()
-{
-    val application = LocalContext.current.applicationContext as com.example.mywallet.MyWalletApplication
+fun Transaction() {
+    val application =
+        LocalContext.current.applicationContext as com.example.mywallet.MyWalletApplication
     val dao = application.database.transactionDao()
     val factory = TransactionViewModelFactory(dao)
     val viewModel: TransactionViewModel = viewModel(
         factory = factory
     )
-    TransactionContent{
+    TransactionContent {
         viewModel.addTransaction(it)
     }
 }
 
 @Composable
-fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long)->Unit) {
+fun TransactionContent(modifier: Modifier = Modifier, addTransaction: (Long) -> Unit) {
     var amount by remember { mutableLongStateOf(0) }
     var incomeAlpha by remember { mutableFloatStateOf(1f) }
     var expenditureAlpha by remember { mutableFloatStateOf(1f) }
@@ -275,9 +275,10 @@ fun ColumnButton(
     textThird: String,
     textForce: String,
     amount: Long,
-    amountChange: (Long)->Unit)
-{
-    Column(modifier = modifier.fillMaxHeight(),
+    amountChange: (Long) -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceEvenly
     )
     {
@@ -289,18 +290,24 @@ fun ColumnButton(
 }
 
 @Composable
-fun Buttons(modifier: Modifier = Modifier,text: String,amount: Long,amountChange: (Long)->Unit)
-{
+fun Buttons(
+    modifier: Modifier = Modifier,
+    text: String,
+    amount: Long,
+    amountChange: (Long) -> Unit
+) {
     val targetText = stringResource(_root_ide_package_.com.example.mywallet.R.string.delete)
     Button(
         modifier = modifier
             .size(90.dp),
         onClick = {
-            if(text == "00"){
-                if(amount * 100 < 999999) amountChange(amount * 100) else amountChange(999999)
-            }else if(text != targetText){
-                if(amount * 100 < 999999) amountChange(amount * 10 + text.toInt()) else amountChange(999999)
-            }else {
+            if (text == "00") {
+                if (amount * 100 < 999999) amountChange(amount * 100) else amountChange(999999)
+            } else if (text != targetText) {
+                if (amount * 100 < 999999) amountChange(amount * 10 + text.toInt()) else amountChange(
+                    999999
+                )
+            } else {
                 amountChange(amount / 10)
             }
         },
@@ -336,8 +343,7 @@ fun Buttons(modifier: Modifier = Modifier,text: String,amount: Long,amountChange
 }
 
 @Composable
-fun LRSwitcher(text: String, onClick: ()->Unit)
-{
+fun LRSwitcher(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
@@ -350,7 +356,7 @@ fun LRSwitcher(text: String, onClick: ()->Unit)
             disabledContainerColor = Color(0xFF2A4373),
             disabledContentColor = Color.White
         ),
-    ){
+    ) {
         Text(
             textAlign = TextAlign.Center,
             fontSize = 40.sp,
@@ -369,7 +375,6 @@ fun LRSwitcher(text: String, onClick: ()->Unit)
 
 @Preview(backgroundColor = 0xFF171824)
 @Composable
-fun Test()
-{
+fun Test() {
     TransactionContent() { }
 }

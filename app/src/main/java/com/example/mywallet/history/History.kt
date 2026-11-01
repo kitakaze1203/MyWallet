@@ -45,8 +45,9 @@ import com.example.mywallet.data.Transaction
 import com.example.mywallet.module.formatAmount
 import java.time.Instant
 import java.time.ZoneId
+
 @Composable
-fun History(){
+fun History() {
     val application = LocalContext.current.applicationContext as MyWalletApplication
     val dao = application.database.transactionDao()
     val factory = HistoryViewModelFactory(dao)
@@ -64,7 +65,7 @@ fun HistoryContent(
     modifier: Modifier = Modifier,
     transactions: List<Transaction>,
     onSetLabel: (String, Long) -> Unit
-){
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -82,7 +83,7 @@ fun HistoryContent(
         Spacer(modifier = modifier.size(50.dp))
 
         LazyColumn(modifier = modifier) {
-            items(transactions){ transaction ->
+            items(items = transactions) { transaction ->
                 HistoryCard(
                     transaction = transaction,
                     modifier = Modifier.padding(10.dp),
@@ -99,7 +100,7 @@ fun HistoryCard(
     modifier: Modifier = Modifier,
     transaction: Transaction,
     onSetLabel: (String, Long) -> Unit
-){
+) {
 
     val date = Instant
         .ofEpochMilli(transaction.timestamp)
@@ -111,16 +112,16 @@ fun HistoryCard(
             .fillMaxWidth()
             .height(100.dp),
         colors = CardDefaults.cardColors(
-            containerColor =  Color(0xFF2D365A),
+            containerColor = Color(0xFF2D365A),
             contentColor = Color(0xFFDFF2FF)
         )
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-        ){
+        ) {
             Text(
                 text = "${date.monthValue}月${date.dayOfMonth}日",
                 fontSize = 30.sp,
@@ -135,7 +136,7 @@ fun HistoryCard(
                     text = formatAmount(amount = transaction.amount),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if(transaction.amount<0) Color(0xFFFF6B6B) else Color(0xFF65D69A)
+                    color = if (transaction.amount < 0) Color(0xFFFF6B6B) else Color(0xFF65D69A)
                 )
             }
         }
@@ -148,18 +149,18 @@ fun Label(
     modifier: Modifier = Modifier,
     transaction: Transaction,
     onSetLabel: (String, Long) -> Unit
-){
+) {
 
-    var expanded by remember{ mutableStateOf(false) }
-    var selected by remember{ mutableStateOf(transaction.label ?: "ラベルなし")}
+    var expanded by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(transaction.label ?: "ラベルなし") }
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    val options = listOf("食費","買い物","推し活","調整","給料","その他")
+    val options = listOf("食費", "買い物", "推し活", "調整", "給料", "その他")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = {expanded = it},
+        onExpandedChange = { expanded = it },
         modifier = Modifier
             .width(120.dp)
             .height(40.dp)
@@ -186,7 +187,7 @@ fun Label(
                     singleLine = true,
                     visualTransformation = VisualTransformation.None,
                     interactionSource = interactionSource,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
                         top = 0.dp,
                         bottom = 0.dp,
@@ -200,14 +201,14 @@ fun Label(
                         unfocusedTrailingIconColor = Color(0xFF8796BA),
                         focusedIndicatorColor = Color(0xFF3A4770),
                         unfocusedIndicatorColor = Color(0xFF3A4770)
-                        )
+                    )
                 )
             }
         )
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = {expanded = false},
+            onDismissRequest = { expanded = false },
             containerColor = Color(0xFF25283A)
         ) {
             options.forEach { option ->
@@ -215,17 +216,19 @@ fun Label(
                 val isSelected = option == selected
 
                 DropdownMenuItem(
-                    text = { Text(
-                        text = option,
-                        color = if(isSelected) Color.White else Color(0xFFE5EBF8)
-                    )},
+                    text = {
+                        Text(
+                            text = option,
+                            color = if (isSelected) Color.White else Color(0xFFE5EBF8)
+                        )
+                    },
                     onClick = {
                         selected = option
                         expanded = false
-                        onSetLabel(selected,transaction.id)
+                        onSetLabel(selected, transaction.id)
                     },
                     modifier = Modifier.background(
-                        color = if(isSelected) Color(0xFF465581) else Color(0xFF25283A)
+                        color = if (isSelected) Color(0xFF465581) else Color(0xFF25283A)
                     )
                 )
             }
@@ -234,9 +237,9 @@ fun Label(
     }
 }
 
-@Preview (backgroundColor = 0xFF171824, showBackground = true)
+@Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
-fun HistoryTest(){
+fun HistoryTest() {
     val dummyTransactions = listOf(
         Transaction(
             id = 1,
@@ -281,5 +284,5 @@ fun HistoryTest(){
             label = null
         )
     )
-    HistoryContent(transactions = dummyTransactions, onSetLabel = {label,id ->})
+    HistoryContent(transactions = dummyTransactions, onSetLabel = { label, id -> })
 }
