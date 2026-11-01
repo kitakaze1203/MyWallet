@@ -314,9 +314,9 @@ fun Buttons(
         shape = CircleShape,
         colors = ButtonColors(
             containerColor = Color(0xFF2A4373),
-            contentColor = Color.White,
+            contentColor = Color(0xFFDFF2FF),
             disabledContainerColor = Color(0xFF2A4373),
-            disabledContentColor = Color.White
+            disabledContentColor = Color(0xFFDFF2FF)
         ),
         contentPadding = PaddingValues(0.dp)
     ) {
@@ -331,7 +331,6 @@ fun Buttons(
                 textAlign = TextAlign.Center,
                 fontSize = 40.sp,
                 text = text,
-                color = Color(0xFFDFF2FF),
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(
                         includeFontPadding = false
@@ -352,16 +351,15 @@ fun LRSwitcher(text: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(24.dp),
         colors = ButtonColors(
             containerColor = Color(0xFF2A4373),
-            contentColor = Color.White,
+            contentColor = Color(0xFFDFF2FF),
             disabledContainerColor = Color(0xFF2A4373),
-            disabledContentColor = Color.White
+            disabledContentColor = Color(0xFFDFF2FF)
         ),
     ) {
         Text(
             textAlign = TextAlign.Center,
             fontSize = 40.sp,
             text = text,
-            color = Color(0xFFDFF2FF),
             style = TextStyle(
                 platformStyle = PlatformTextStyle(
                     includeFontPadding = false
