@@ -1,5 +1,6 @@
 package com.example.mywallet.setting
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,8 +56,32 @@ data class Label(
     var noDelete: Boolean = false,
 )
 
+enum class Screen {
+    MAIN,
+    LABEL
+}
 @Composable
-fun Setting(modifier: Modifier = Modifier) {
+fun Setting(modifier: Modifier = Modifier){
+    var screen by remember { mutableStateOf(Screen.MAIN) }
+
+    BackHandler(
+        enabled = (screen != Screen.MAIN)
+    ) {
+        screen = Screen.MAIN
+    }
+
+    when(screen){
+        Screen.MAIN -> {
+            MainScreen( onLabelClick = { screen = Screen.LABEL})
+        }
+
+        Screen.LABEL -> {
+            LabelSetting()
+        }
+    }
+}
+@Composable
+fun MainScreen(modifier: Modifier = Modifier, onLabelClick:() -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -78,7 +103,7 @@ fun Setting(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(150.dp)
                 .weight(1f),
-            onClick = {},
+            onClick = onLabelClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonColors(
                 containerColor = Color(0xFF2A4373),
@@ -129,6 +154,7 @@ fun Setting(modifier: Modifier = Modifier) {
 fun LabelSetting(modifier: Modifier = Modifier) {
 
     var newLabel by remember { mutableStateOf(false) }
+
     val labels = remember{
         mutableStateListOf(
             Label(
@@ -403,5 +429,5 @@ fun LabelCard(
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    LabelSetting()
+    Setting()
 }
