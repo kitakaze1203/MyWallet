@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -142,27 +143,6 @@ fun LabelSetting(modifier: Modifier = Modifier) {
 
     Box(modifier = Modifier.padding(30.dp)) {
 
-        Button(
-            modifier = modifier
-                .align(Alignment.BottomEnd)
-                .padding()
-                .size(70.dp),
-            onClick = {},
-            shape = CircleShape,
-            colors = ButtonColors(
-                containerColor = Color(0xFF2A4373),
-                contentColor = Color(0xFFDFF2FF),
-                disabledContainerColor = Color(0xFF2A4373),
-                disabledContentColor = Color(0xFFDFF2FF)
-            ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(
-                fontSize = 50.sp,
-                text = "+",
-            )
-        }
-
         Column(
             modifier = modifier
                 .fillMaxSize(),
@@ -178,7 +158,10 @@ fun LabelSetting(modifier: Modifier = Modifier) {
             Spacer(modifier = modifier.size(50.dp))
 
             if(newLabel) {
-                newLabel(addLabel = {labels.add(index = 0, element = Label(labelName = it))})
+                newLabel(addLabel = {
+                    labels.add(index = 0, element = Label(labelName = it))
+                    newLabel = false
+                })
                 Spacer(modifier = Modifier.padding(10.dp))
             }
 
@@ -191,6 +174,31 @@ fun LabelSetting(modifier: Modifier = Modifier) {
                     )
                 }
             }
+        }
+
+        Button(
+            modifier = modifier
+                .align(Alignment.BottomEnd)
+                .padding()
+                .size(70.dp),
+            onClick = { newLabel = true },
+            shape = CircleShape,
+            colors = ButtonColors(
+                containerColor = Color(0xFF2A4373),
+                contentColor = Color(0xFFDFF2FF),
+                disabledContainerColor = Color(0xFF2A4373),
+                disabledContentColor = Color(0xFFDFF2FF)
+            ),
+            contentPadding = PaddingValues(0.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 10.dp,
+                pressedElevation = 5.dp,
+            )
+        ) {
+            Text(
+                fontSize = 50.sp,
+                text = "+",
+            )
         }
     }
 }
@@ -395,6 +403,5 @@ fun LabelCard(
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    newLabel(addLabel = { _ -> })
-    //LabelSetting()
+    LabelSetting()
 }
