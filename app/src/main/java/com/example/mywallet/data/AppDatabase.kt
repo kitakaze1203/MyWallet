@@ -4,7 +4,10 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Transaction::class],
+    entities = [
+        Transaction::class,
+        Label::class
+    ],
     version = 1,
     exportSchema = false
 )

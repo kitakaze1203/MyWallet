@@ -8,17 +8,22 @@ import androidx.room.Query
 interface TransactionDao {
 
     @Insert
-    suspend fun insert(transaction: Transaction)
+    suspend fun insertTransaction(transaction: Transaction)
+
+    @Insert
+    suspend fun insertLabel(label: Label)
 
     @Query("SELECT SUM(amount) FROM `Transaction`")
     suspend fun getTotal(): Long?
 
     @Query("""
-        SELECT SUM(amount)
+        SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
+        LEFT JOIN Label
+            ON `Transaction`.labelId = `Label`.id
         WHERE timestamp >= :start
         AND timestamp < :end
-        AND label != "調整" OR label IS NULL
+        AND (`Label`.labelName != "調整" OR `Label`.labelName IS NULL)
         """)
     suspend fun getTotalBetween(
         start: Long,
@@ -26,12 +31,14 @@ interface TransactionDao {
     ): Long?
 
     @Query("""
-        SELECT SUM(amount)
+        SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
-        WHERE amount<0
+        LEFT JOIN Label
+            ON `Transaction`.labelId = `Label`.id
+        WHERE `Transaction`.amount<0
         AND timestamp >= :start
         AND timestamp < :end
-        AND label != "調整" OR label IS NULL
+        AND (`Label`.labelName != "調整" OR `Label`.labelName IS NULL)
     """)
     suspend fun getExpenseTotalBetween(
         start: Long,
@@ -39,12 +46,14 @@ interface TransactionDao {
     ): Long?
 
     @Query("""
-        SELECT SUM(amount)
+        SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
-        WHERE amount>0
+        LEFT JOIN Label
+            ON `Transaction`.labelId = `Label`.id
+        WHERE `Transaction`.amount>0
         AND timestamp >= :start
         AND timestamp < :end
-        AND label != "調整" OR label IS NULL
+        AND (`Label`.labelName != "調整" OR `Label`.labelName IS NULL)
     """)
     suspend fun getGrossTotalBetween(
         start: Long,
@@ -59,17 +68,19 @@ interface TransactionDao {
 
     @Query("""
         UPDATE `Transaction`
-        SET label = :label
+        SET labelId = :labelId
         WHERE id = :id
     """)
     suspend fun setLabel(
-        label: String,
+        labelId: Long,
         id: Long
     )
 
     @Query("""
         SELECT SUM(amount) FROM `Transaction`
-        WHERE label == :label
+        LEFT JOIN Label
+            ON `Transaction`.labelId = `Label`.id
+        WHERE Label.labelName == :label
     """)
     suspend fun getLabelTotal(
         label: String,
