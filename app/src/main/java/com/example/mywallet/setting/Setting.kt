@@ -1,24 +1,29 @@
 package com.example.mywallet.setting
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -60,6 +65,7 @@ enum class Screen {
     MAIN,
     LABEL
 }
+
 @Composable
 fun Setting(modifier: Modifier = Modifier){
     var screen by remember { mutableStateOf(Screen.MAIN) }
@@ -159,10 +165,12 @@ fun LabelSetting(modifier: Modifier = Modifier) {
         mutableStateListOf(
             Label(
                 labelName = "調整",
-                noDelete = true
+                noDelete = true,
+                grossDefault = true
             ),
             Label(
-                labelName = "食費"
+                labelName = "食費",
+                expenseDefault = true
             )
         )
     }
@@ -184,7 +192,7 @@ fun LabelSetting(modifier: Modifier = Modifier) {
             Spacer(modifier = modifier.size(50.dp))
 
             if(newLabel) {
-                newLabel(addLabel = {
+                NewLabel(addLabel = {
                     labels.add(index = 0, element = Label(labelName = it))
                     newLabel = false
                 })
@@ -230,7 +238,7 @@ fun LabelSetting(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun newLabel(modifier: Modifier = Modifier, addLabel:(String) -> Unit){
+fun NewLabel(modifier: Modifier = Modifier, addLabel:(String) -> Unit){
 
     var labelName by remember{mutableStateOf("")}
     Card(
@@ -326,99 +334,140 @@ fun LabelCard(
                 modifier = Modifier.padding(start = 10.dp),
                 text = label.labelName,
                 fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Bold
             )
 
-            Box {
-                IconButton(
-                    modifier = Modifier.size(45.dp),
-                    onClick = { expanded = !expanded },
-                    colors = IconButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color(0xFFDFF2FF),
-                        disabledContainerColor = Color.Transparent,
-                        disabledContentColor = Color(0xFFDFF2FF)
-                    )
-                ) {
-                    Icon(
-                        modifier = Modifier.size(35.dp),
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "ラベル設定メニュー"
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if(label.grossDefault){
+                    Box(
+                        modifier = modifier
+                            .padding(end = 20.dp)
+                            .height(40.dp)
+                            .width(55.dp)
+                            .background(
+                                color = Color(0xFF29443A),
+                                shape = RoundedCornerShape(8.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = "収入",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF80CFA5)
+                        )
+                    }
+                } else if(label.expenseDefault){
+                    Box(
+                        modifier = modifier
+                            .padding(end = 20.dp)
+                            .height(40.dp)
+                            .width(55.dp)
+                            .background(
+                                color = Color(0xFF473039),
+                                shape = RoundedCornerShape(8.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = "支出",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFF28B94)
+                        )
+                    }
                 }
+                Box {
+                    IconButton(
+                        modifier = Modifier.size(45.dp),
+                        onClick = { expanded = !expanded },
+                        colors = IconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color(0xFFDFF2FF),
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = Color(0xFFDFF2FF)
+                        )
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(35.dp),
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "ラベル設定メニュー"
+                        )
+                    }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    containerColor = Color(0xFF3A4770)
-                ) {
-                    if (!label.noDelete) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "ラベルを削除",
-                                    color = Color(0xFFDFF2FF)
-                                )
-                            },
-                            onClick = {
-                                deleteLabel()
-                                expanded = false
-                            }
-                        )
-                    }
-                    if (label.expenseDefault) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "支出デフォルトを解除",
-                                    color = Color(0xFFDFF2FF)
-                                )
-                            },
-                            onClick = {
-                                label.expenseDefault = false
-                                expanded = false
-                            }
-                        )
-                    } else {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "支出デフォルトに設定",
-                                    color = Color(0xFFDFF2FF)
-                                )
-                            },
-                            onClick = {
-                                label.expenseDefault = true
-                                expanded = false
-                            }
-                        )
-                    }
-                    if (label.grossDefault) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "収入デフォルトを解除",
-                                    color = Color(0xFFDFF2FF)
-                                )
-                            },
-                            onClick = {
-                                label.expenseDefault = false
-                                expanded = false
-                            }
-                        )
-                    } else {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "収入デフォルトに設定",
-                                    color = Color(0xFFDFF2FF)
-                                )
-                            },
-                            onClick = {
-                                label.grossDefault = true
-                                expanded = false
-                            }
-                        )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = Color(0xFF3A4770)
+                    ) {
+                        if (!label.noDelete) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "ラベルを削除",
+                                        color = Color(0xFFDFF2FF)
+                                    )
+                                },
+                                onClick = {
+                                    deleteLabel()
+                                    expanded = false
+                                }
+                            )
+                        }
+                        if (label.expenseDefault) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "支出デフォルトを解除",
+                                        color = Color(0xFFDFF2FF)
+                                    )
+                                },
+                                onClick = {
+                                    label.expenseDefault = false
+                                    expanded = false
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "支出デフォルトに設定",
+                                        color = Color(0xFFDFF2FF)
+                                    )
+                                },
+                                onClick = {
+                                    label.expenseDefault = true
+                                    expanded = false
+                                }
+                            )
+                        }
+                        if (label.grossDefault) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "収入デフォルトを解除",
+                                        color = Color(0xFFDFF2FF)
+                                    )
+                                },
+                                onClick = {
+                                    label.expenseDefault = false
+                                    expanded = false
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "収入デフォルトに設定",
+                                        color = Color(0xFFDFF2FF)
+                                    )
+                                },
+                                onClick = {
+                                    label.grossDefault = true
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -429,5 +478,5 @@ fun LabelCard(
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    Setting()
+    LabelSetting()
 }
