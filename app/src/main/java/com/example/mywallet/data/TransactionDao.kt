@@ -1,8 +1,10 @@
 package com.example.mywallet.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
@@ -13,8 +15,17 @@ interface TransactionDao {
     @Insert
     suspend fun insertLabel(label: Label)
 
+    @Delete
+    suspend fun deleteLabel(label: Label)
+
     @Query("SELECT SUM(amount) FROM `Transaction`")
     suspend fun getTotal(): Long?
+
+    @Query("""
+        SELECT * FROM `Transaction`
+        ORDER BY timestamp DESC
+    """)
+    suspend fun getAll(): List<Transaction>
 
     @Query("""
         SELECT SUM(`Transaction`.amount)
@@ -61,10 +72,17 @@ interface TransactionDao {
     ): Long?
 
     @Query("""
-        SELECT * FROM `Transaction`
-        ORDER BY timestamp DESC
+        SELECT SUM(amount) FROM `Transaction`
+        LEFT JOIN Label
+            ON `Transaction`.labelId = `Label`.id
+        WHERE Label.labelName == :label
     """)
-    suspend fun getAll(): List<Transaction>
+    suspend fun getLabelTotal(
+        label: String,
+    ): Long?
+
+    @Query("SELECT * FROM Label")
+    fun getAllLabels(): Flow<List<Label>>
 
     @Query("""
         UPDATE `Transaction`
@@ -77,12 +95,42 @@ interface TransactionDao {
     )
 
     @Query("""
-        SELECT SUM(amount) FROM `Transaction`
-        LEFT JOIN Label
-            ON `Transaction`.labelId = `Label`.id
-        WHERE Label.labelName == :label
+        UPDATE `Transaction`
+        SET labelId = NULL
+        WHERE labelId = :labelId
     """)
-    suspend fun getLabelTotal(
-        label: String,
-    ): Long?
+    suspend fun deleteTransactionLabel(labelId: Long)
+
+    @Query("""
+        UPDATE `Label`
+        SET expenseDefault = CASE labelname
+                                WHEN :labelName THEN 1
+                                ELSE 0
+                                END
+    """)
+    suspend fun setExpenseDefault(labelName: String)
+
+    @Query("""
+        UPDATE `Label`
+        SET expenseDefault = 0
+        WHERE labelName = :labelName
+    """)
+    suspend fun clearExpenseDefault(labelName: String)
+
+    @Query("""
+        UPDATE `Label`
+        SET grossDefault = CASE labelname
+                                WHEN :labelName THEN 1
+                                ELSE 0
+                                END
+    """)
+    suspend fun setGrossDefault(labelName: String)
+
+    @Query("""
+        UPDATE `Label`
+        SET grossDefault = 0
+        WHERE labelName = :labelName
+    """)
+    suspend fun clearGrossDefault(labelName: String)
+
 }

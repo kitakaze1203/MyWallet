@@ -17,11 +17,11 @@ class TransactionViewModel(
 
     fun addTransaction(amount: Long) {
         viewModelScope.launch {
-            dao.insert(
+            dao.insertTransaction(
                 Transaction(
                     amount = amount,
                     timestamp = System.currentTimeMillis(),
-                    label = null
+                    labelId = null
                 )
             )
         }

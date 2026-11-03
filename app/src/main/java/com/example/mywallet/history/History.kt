@@ -152,7 +152,7 @@ fun Label(
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(transaction.label ?: "ラベルなし") }
+    var selected by remember { mutableStateOf(transaction.labelId ?: "ラベルなし") }
     val interactionSource = remember { MutableInteractionSource() }
 
 
@@ -245,43 +245,43 @@ fun HistoryTest() {
             id = 1,
             amount = -1000L,
             timestamp = 1760972400000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 2,
             amount = 3000L,
             timestamp = 1761058800000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 3,
             amount = -500L,
             timestamp = 1761145200000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 4,
             amount = -500L,
             timestamp = 1761145200000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 5,
             amount = -500L,
             timestamp = 1761145200000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 6,
             amount = -500L,
             timestamp = 1761145200000L,
-            label = null
+            labelId = null
         ),
         Transaction(
             id = 7,
             amount = -500L,
             timestamp = 1761145200000L,
-            label = null
+            labelId = null
         )
     )
     HistoryContent(transactions = dummyTransactions, onSetLabel = { label, id -> })

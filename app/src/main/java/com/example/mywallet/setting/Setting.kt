@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,10 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -36,30 +33,27 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mywallet.history.HistoryCard
-
-data class Label(
-    var labelName: String,
-    var expenseDefault: Boolean = false,
-    var grossDefault: Boolean = false,
-    var noDelete: Boolean = false,
-)
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mywallet.MyWalletApplication
+import com.example.mywallet.data.Label
+import com.example.mywallet.history.HistoryViewModel
+import com.example.mywallet.history.HistoryViewModelFactory
 
 enum class Screen {
     MAIN,
@@ -69,6 +63,15 @@ enum class Screen {
 @Composable
 fun Setting(modifier: Modifier = Modifier){
     var screen by remember { mutableStateOf(Screen.MAIN) }
+
+    val application = LocalContext.current.applicationContext as MyWalletApplication
+    val dao = application.database.transactionDao()
+    val factory = SettingViewModelFactory(dao)
+    val viewModel: SettingViewModel = viewModel(
+        factory = factory
+    )
+
+    val labels by viewModel.labels.collectAsStateWithLifecycle()
 
     BackHandler(
         enabled = (screen != Screen.MAIN)
@@ -82,7 +85,12 @@ fun Setting(modifier: Modifier = Modifier){
         }
 
         Screen.LABEL -> {
-            LabelSetting()
+            LabelSetting(
+                labels = labels,
+                addLabel = viewModel::addLabel,
+                deleteLabel = viewModel::deleteLabel,
+                setDefault = viewModel::setDefault,
+                clearDefault = viewModel::clearDefault)
         }
     }
 }
@@ -157,23 +165,15 @@ fun MainScreen(modifier: Modifier = Modifier, onLabelClick:() -> Unit) {
 }
 
 @Composable
-fun LabelSetting(modifier: Modifier = Modifier) {
+fun LabelSetting(
+    modifier: Modifier = Modifier,
+    labels:List<Label>,
+    addLabel: (String) -> Unit,
+    deleteLabel: (Label) -> Unit,
+    setDefault: (Int, String) -> Unit,
+    clearDefault: (Int, String) -> Unit) {
 
     var newLabel by remember { mutableStateOf(false) }
-
-    val labels = remember{
-        mutableStateListOf(
-            Label(
-                labelName = "調整",
-                noDelete = true,
-                grossDefault = true
-            ),
-            Label(
-                labelName = "食費",
-                expenseDefault = true
-            )
-        )
-    }
 
     Box(modifier = Modifier.padding(30.dp)) {
 
@@ -193,7 +193,7 @@ fun LabelSetting(modifier: Modifier = Modifier) {
 
             if(newLabel) {
                 NewLabel(addLabel = {
-                    labels.add(index = 0, element = Label(labelName = it))
+                    addLabel(it)
                     newLabel = false
                 })
                 Spacer(modifier = Modifier.padding(10.dp))
@@ -204,7 +204,9 @@ fun LabelSetting(modifier: Modifier = Modifier) {
                     LabelCard(
                         modifier = modifier.padding(vertical = 10.dp),
                         label = label,
-                        deleteLabel = { labels.remove(label) }
+                        deleteLabel = { deleteLabel(label) },
+                        setDefault = setDefault,
+                        clearDefault = clearDefault
                     )
                 }
             }
@@ -308,7 +310,9 @@ fun NewLabel(modifier: Modifier = Modifier, addLabel:(String) -> Unit){
 fun LabelCard(
     modifier: Modifier = Modifier,
     label: Label,
-    deleteLabel: () -> Unit
+    deleteLabel: () -> Unit,
+    setDefault: (Int, String) -> Unit,
+    clearDefault: (Int, String) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
@@ -359,7 +363,7 @@ fun LabelCard(
                     }
                 } else if(label.expenseDefault){
                     Box(
-                        modifier = modifier
+                        modifier = Modifier
                             .padding(end = 20.dp)
                             .height(40.dp)
                             .width(55.dp)
@@ -423,7 +427,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    label.expenseDefault = false
+                                    clearDefault(1,label.labelName)
                                     expanded = false
                                 }
                             )
@@ -436,7 +440,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    label.expenseDefault = true
+                                    setDefault(1,label.labelName)
                                     expanded = false
                                 }
                             )
@@ -450,7 +454,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    label.expenseDefault = false
+                                    clearDefault(0,label.labelName)
                                     expanded = false
                                 }
                             )
@@ -463,7 +467,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    label.grossDefault = true
+                                    setDefault(0,label.labelName)
                                     expanded = false
                                 }
                             )
@@ -478,5 +482,5 @@ fun LabelCard(
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    LabelSetting()
+    LabelSetting(labels = emptyList(), addLabel = {}, deleteLabel = {}, setDefault = {_,_ -> }, clearDefault = {_,_ ->})
 }
