@@ -39,9 +39,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mywallet.MyWalletApplication
+import com.example.mywallet.data.Label
 import com.example.mywallet.data.Transaction
+import com.example.mywallet.data.TransactionWithLabel
 import com.example.mywallet.module.formatAmount
 import java.time.Instant
 import java.time.ZoneId
@@ -54,17 +57,19 @@ fun History() {
     val viewModel: HistoryViewModel = viewModel(
         factory = factory
     )
+    val labels by viewModel.labels.collectAsStateWithLifecycle()
+    val transactions by viewModel.transactions.collectAsStateWithLifecycle()
 
-    viewModel.getTransactions()
 
-    HistoryContent(transactions = viewModel.transactions, onSetLabel = viewModel::setLabel)
+    HistoryContent(transactions = transactions,labels = labels, onSetLabel = viewModel::setLabel)
 }
 
 @Composable
 fun HistoryContent(
     modifier: Modifier = Modifier,
-    transactions: List<Transaction>,
-    onSetLabel: (String, Long) -> Unit
+    transactions: List<TransactionWithLabel>,
+    labels: List<Label>,
+    onSetLabel: (Long, Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -87,6 +92,7 @@ fun HistoryContent(
                 HistoryCard(
                     transaction = transaction,
                     modifier = Modifier.padding(10.dp),
+                    labels = labels,
                     onSetLabel = onSetLabel
                 )
             }
@@ -98,12 +104,13 @@ fun HistoryContent(
 @Composable
 fun HistoryCard(
     modifier: Modifier = Modifier,
-    transaction: Transaction,
-    onSetLabel: (String, Long) -> Unit
+    transaction: TransactionWithLabel,
+    labels: List<Label>,
+    onSetLabel: (Long, Long) -> Unit
 ) {
 
     val date = Instant
-        .ofEpochMilli(transaction.timestamp)
+        .ofEpochMilli(transaction.transaction.timestamp)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
 
@@ -130,13 +137,13 @@ fun HistoryCard(
             Column(
                 horizontalAlignment = Alignment.End,
             ) {
-                Label(transaction = transaction, onSetLabel = onSetLabel)
+                Label(transaction = transaction, labels = labels ,onSetLabel = onSetLabel)
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = formatAmount(amount = transaction.amount),
+                    text = formatAmount(amount = transaction.transaction.amount),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (transaction.amount < 0) Color(0xFFFF6B6B) else Color(0xFF65D69A)
+                    color = if (transaction.transaction.amount < 0) Color(0xFFFF6B6B) else Color(0xFF65D69A)
                 )
             }
         }
@@ -147,16 +154,14 @@ fun HistoryCard(
 @Composable
 fun Label(
     modifier: Modifier = Modifier,
-    transaction: Transaction,
-    onSetLabel: (String, Long) -> Unit
+    transaction: TransactionWithLabel,
+    labels: List<Label>,
+    onSetLabel: (Long, Long) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(transaction.labelId ?: "ラベルなし") }
+    var selected by remember { mutableStateOf(transaction.labelName ?: "ラベルなし") }
     val interactionSource = remember { MutableInteractionSource() }
-
-
-    val options = listOf("食費", "買い物", "推し活", "調整", "給料", "その他")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -211,21 +216,21 @@ fun Label(
             onDismissRequest = { expanded = false },
             containerColor = Color(0xFF25283A)
         ) {
-            options.forEach { option ->
+            labels.forEach { label ->
 
-                val isSelected = option == selected
+                val isSelected = label.labelName == selected
 
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = option,
+                            text = label.labelName,
                             color = if (isSelected) Color.White else Color(0xFFE5EBF8)
                         )
                     },
                     onClick = {
-                        selected = option
+                        selected = label.labelName
                         expanded = false
-                        onSetLabel(selected, transaction.id)
+                        onSetLabel(label.id, transaction.transaction.id)
                     },
                     modifier = Modifier.background(
                         color = if (isSelected) Color(0xFF465581) else Color(0xFF25283A)
@@ -284,5 +289,5 @@ fun HistoryTest() {
             labelId = null
         )
     )
-    HistoryContent(transactions = dummyTransactions, onSetLabel = { label, id -> })
+//    HistoryContent(transactions = dummyTransactions, onSetLabel = { label, id -> })
 }

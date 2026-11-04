@@ -30,5 +30,12 @@ data class TransactionWithLabel(
     @Embedded
     val transaction: Transaction,
 
-    val labelName: String?,
+    val labelName: String?
+)
+
+data class LabelTotal(
+    @Embedded
+    val label: Label,
+
+    val amount: Long
 )

@@ -22,15 +22,20 @@ interface TransactionDao {
     suspend fun getTotal(): Long?
 
     @Query("""
-        SELECT * FROM `Transaction`
-        ORDER BY timestamp DESC
-    """)
-    suspend fun getAll(): List<Transaction>
+    SELECT
+        `Transaction`.*,
+        `Label`.labelName
+    FROM `Transaction`
+    LEFT JOIN `Label`
+        ON `Transaction`.labelId = Label.id
+    ORDER BY `Transaction`.timestamp DESC
+""")
+    fun getAll(): Flow<List<TransactionWithLabel>>
 
     @Query("""
         SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
-        LEFT JOIN Label
+        LEFT JOIN `Label`
             ON `Transaction`.labelId = `Label`.id
         WHERE timestamp >= :start
         AND timestamp < :end
@@ -44,7 +49,7 @@ interface TransactionDao {
     @Query("""
         SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
-        LEFT JOIN Label
+        LEFT JOIN `Label`
             ON `Transaction`.labelId = `Label`.id
         WHERE `Transaction`.amount<0
         AND timestamp >= :start
@@ -59,7 +64,7 @@ interface TransactionDao {
     @Query("""
         SELECT SUM(`Transaction`.amount)
         FROM `Transaction`
-        LEFT JOIN Label
+        LEFT JOIN `Label`
             ON `Transaction`.labelId = `Label`.id
         WHERE `Transaction`.amount>0
         AND timestamp >= :start
@@ -72,14 +77,15 @@ interface TransactionDao {
     ): Long?
 
     @Query("""
-        SELECT SUM(amount) FROM `Transaction`
-        LEFT JOIN Label
-            ON `Transaction`.labelId = `Label`.id
-        WHERE Label.labelName == :label
-    """)
-    suspend fun getLabelTotal(
-        label: String,
-    ): Long?
+    SELECT
+        `Label`.*,
+        SUM(`Transaction`.amount) AS amount
+    FROM `Label`
+    JOIN `Transaction`
+        ON Label.id = `Transaction`.labelId
+    GROUP BY `Label`.id
+""")
+    fun getLabelTotal(): Flow<List<LabelTotal>>
 
     @Query("SELECT * FROM Label")
     fun getAllLabels(): Flow<List<Label>>

@@ -5,7 +5,12 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mywallet.data.Label
+import com.example.mywallet.data.LabelTotal
 import com.example.mywallet.data.TransactionDao
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.YearMonth
 import java.time.ZoneId
@@ -24,8 +29,13 @@ class BalanceViewModel(
     var monthlyExpenseTotal by mutableLongStateOf(0L)
         private set
 
-    var labelTotal = mutableMapOf<String,Long>()
-        private set
+    val labelTotals: StateFlow<List<LabelTotal>> = dao.getLabelTotal()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            initialValue = emptyList()
+        )
+
     var balance by mutableLongStateOf(0L)
         private set
 
@@ -98,12 +108,6 @@ class BalanceViewModel(
     fun showBalance(){
         viewModelScope.launch {
             balance = dao.getTotal() ?:0L
-        }
-    }
-
-    fun getLabelTotal(label: String){
-        viewModelScope.launch {
-            labelTotal[label] = dao.getLabelTotal(label) ?: 0L
         }
     }
 }
