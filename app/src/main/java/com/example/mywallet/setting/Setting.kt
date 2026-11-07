@@ -86,7 +86,7 @@ fun Setting(modifier: Modifier = Modifier){
 
         Screen.LABEL -> {
             LabelSetting(
-                labels = labels,
+                labels = labels.sortedByDescending { it.id },
                 addLabel = viewModel::addLabel,
                 deleteLabel = viewModel::deleteLabel,
                 setDefault = viewModel::setDefault,
