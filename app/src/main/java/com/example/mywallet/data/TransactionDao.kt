@@ -22,6 +22,20 @@ interface TransactionDao {
     suspend fun getTotal(): Long?
 
     @Query("""
+        SELECT `Label`.id
+        FROM `Label`
+        WHERE `Label`.expenseDefault = 1
+    """)
+    suspend fun getExpenseDefault(): Long?
+
+    @Query("""
+        SELECT `Label`.id
+        FROM `Label`
+        WHERE `Label`.grossDefault = 1
+    """)
+    suspend fun getGrossDefault(): Long?
+
+    @Query("""
     SELECT
         `Transaction`.*,
         `Label`.labelName

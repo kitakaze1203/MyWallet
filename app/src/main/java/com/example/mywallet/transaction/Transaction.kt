@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -60,8 +61,14 @@ fun Transaction() {
     val viewModel: TransactionViewModel = viewModel(
         factory = factory
     )
+    LaunchedEffect(Unit) {
+        viewModel.loadDefaultLabel()
+    }
+
     TransactionContent {
-        viewModel.addTransaction(it)
+        if(it>0) viewModel.addTransaction(amount = it, labelId = viewModel.grossLabelId)
+        else if (it<0) viewModel.addTransaction(amount = it, labelId = viewModel.expenseLabelId)
+        else viewModel.addTransaction(amount = it, labelId = null)
     }
 }
 
