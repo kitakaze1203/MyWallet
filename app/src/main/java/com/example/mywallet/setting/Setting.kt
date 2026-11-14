@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -54,11 +55,19 @@ import com.example.mywallet.MyWalletApplication
 import com.example.mywallet.data.Label
 import com.example.mywallet.history.HistoryViewModel
 import com.example.mywallet.history.HistoryViewModelFactory
+import com.example.mywallet.module.formatAmount
 
 enum class Screen {
     MAIN,
-    LABEL
+    LABEL,
+    SUBSCRIBE
 }
+
+data class Subcribe(
+    val time: Long,
+    val name: String,
+    val amount: Long,
+)
 
 @Composable
 fun Setting(modifier: Modifier = Modifier){
@@ -91,6 +100,10 @@ fun Setting(modifier: Modifier = Modifier){
                 deleteLabel = viewModel::deleteLabel,
                 setDefault = viewModel::setDefault,
                 clearDefault = viewModel::clearDefault)
+        }
+
+        Screen.SUBSCRIBE -> {
+
         }
     }
 }
@@ -479,8 +492,173 @@ fun LabelCard(
     }
 }
 
+@Composable
+fun SubscribeSetting(modifier:Modifier = Modifier){
+    var subs = listOf<Subcribe>(
+        Subcribe(amount = 1000, time = 1794672660000L, name = "YouTube"),
+        Subcribe(amount = 700, time = 1794759060000L, name = "YouTubeMusic"))
+
+    Box(modifier = Modifier.padding(30.dp)) {
+
+        Column(
+            modifier = modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                fontSize = 55.sp,
+                text = "サブスク管理",
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFFDFF2FF)
+            )
+
+            Spacer(modifier = Modifier.size(50.dp))
+
+            LazyColumn(modifier = modifier) {
+                items(items = subs) { sub ->
+                    SubscribeCard(
+                        modifier = modifier.padding(vertical = 10.dp),
+                        sub = sub
+                    )
+                }
+            }
+        }
+
+        Button(
+            modifier = modifier
+                .align(Alignment.BottomEnd)
+                .padding()
+                .size(70.dp),
+            onClick = {},
+            shape = CircleShape,
+            colors = ButtonColors(
+                containerColor = Color(0xFF2A4373),
+                contentColor = Color(0xFFDFF2FF),
+                disabledContainerColor = Color(0xFF2A4373),
+                disabledContentColor = Color(0xFFDFF2FF)
+            ),
+            contentPadding = PaddingValues(0.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 10.dp,
+                pressedElevation = 5.dp,
+            )
+        ) {
+            Text(
+                fontSize = 50.sp,
+                text = "+",
+            )
+        }
+    }
+}
+
+@Composable
+fun SubscribeCard(modifier: Modifier = Modifier,sub: Subcribe){
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2D365A),
+            contentColor = Color(0xFFDFF2FF)
+        )
+    ) {
+        Column{
+
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = sub.name,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Box {
+                    IconButton(
+                        modifier = Modifier.size(45.dp),
+                        onClick = { expanded = !expanded },
+                        colors = IconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color(0xFFDFF2FF),
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = Color(0xFFDFF2FF)
+                        )
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(35.dp),
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "サブスク設定メニュー"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = Color(0xFF3A4770)
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "ラベルを削除",
+                                    color = Color(0xFFDFF2FF)
+                                )
+                            },
+                            onClick = {}
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = "金額："+formatAmount(sub.amount),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = "更新：　毎月",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(0.1f))
+        }
+    }
+}
+
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    LabelSetting(labels = emptyList(), addLabel = {}, deleteLabel = {}, setDefault = {_,_ -> }, clearDefault = {_,_ ->})
+    SubscribeSetting()
 }
