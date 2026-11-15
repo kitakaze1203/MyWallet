@@ -2,12 +2,14 @@ package com.example.mywallet.setting
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
@@ -28,14 +31,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +80,7 @@ data class Subcribe(
 )
 
 @Composable
-fun Setting(modifier: Modifier = Modifier){
+fun Setting(modifier: Modifier = Modifier) {
     var screen by remember { mutableStateOf(Screen.MAIN) }
 
     val application = LocalContext.current.applicationContext as MyWalletApplication
@@ -88,9 +98,9 @@ fun Setting(modifier: Modifier = Modifier){
         screen = Screen.MAIN
     }
 
-    when(screen){
+    when (screen) {
         Screen.MAIN -> {
-            MainScreen( onLabelClick = { screen = Screen.LABEL})
+            MainScreen(onLabelClick = { screen = Screen.LABEL })
         }
 
         Screen.LABEL -> {
@@ -99,7 +109,8 @@ fun Setting(modifier: Modifier = Modifier){
                 addLabel = viewModel::addLabel,
                 deleteLabel = viewModel::deleteLabel,
                 setDefault = viewModel::setDefault,
-                clearDefault = viewModel::clearDefault)
+                clearDefault = viewModel::clearDefault
+            )
         }
 
         Screen.SUBSCRIBE -> {
@@ -107,8 +118,9 @@ fun Setting(modifier: Modifier = Modifier){
         }
     }
 }
+
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onLabelClick:() -> Unit) {
+fun MainScreen(modifier: Modifier = Modifier, onLabelClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -180,11 +192,12 @@ fun MainScreen(modifier: Modifier = Modifier, onLabelClick:() -> Unit) {
 @Composable
 fun LabelSetting(
     modifier: Modifier = Modifier,
-    labels:List<Label>,
+    labels: List<Label>,
     addLabel: (String) -> Unit,
     deleteLabel: (Label) -> Unit,
     setDefault: (Int, String) -> Unit,
-    clearDefault: (Int, String) -> Unit) {
+    clearDefault: (Int, String) -> Unit
+) {
 
     var newLabel by remember { mutableStateOf(false) }
 
@@ -204,7 +217,7 @@ fun LabelSetting(
 
             Spacer(modifier = modifier.size(50.dp))
 
-            if(newLabel) {
+            if (newLabel) {
                 NewLabel(addLabel = {
                     addLabel(it)
                     newLabel = false
@@ -253,9 +266,9 @@ fun LabelSetting(
 }
 
 @Composable
-fun NewLabel(modifier: Modifier = Modifier, addLabel:(String) -> Unit){
+fun NewLabel(modifier: Modifier = Modifier, addLabel: (String) -> Unit) {
 
-    var labelName by remember{mutableStateOf("")}
+    var labelName by remember { mutableStateOf("") }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -275,7 +288,7 @@ fun NewLabel(modifier: Modifier = Modifier, addLabel:(String) -> Unit){
 
             TextField(
                 value = labelName,
-                onValueChange = {labelName = it},
+                onValueChange = { labelName = it },
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = Color(0xFFDFF2FF),
                     unfocusedTextColor = Color(0xFFDFF2FF),
@@ -355,7 +368,7 @@ fun LabelCard(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if(label.grossDefault){
+                if (label.grossDefault) {
                     Box(
                         modifier = modifier
                             .padding(end = 20.dp)
@@ -366,7 +379,7 @@ fun LabelCard(
                                 shape = RoundedCornerShape(8.dp)
                             ),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             text = "収入",
                             fontSize = 20.sp,
@@ -374,7 +387,7 @@ fun LabelCard(
                             color = Color(0xFF80CFA5)
                         )
                     }
-                } else if(label.expenseDefault){
+                } else if (label.expenseDefault) {
                     Box(
                         modifier = Modifier
                             .padding(end = 20.dp)
@@ -385,7 +398,7 @@ fun LabelCard(
                                 shape = RoundedCornerShape(8.dp)
                             ),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             text = "支出",
                             fontSize = 20.sp,
@@ -440,7 +453,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    clearDefault(1,label.labelName)
+                                    clearDefault(1, label.labelName)
                                     expanded = false
                                 }
                             )
@@ -453,7 +466,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    setDefault(1,label.labelName)
+                                    setDefault(1, label.labelName)
                                     expanded = false
                                 }
                             )
@@ -467,7 +480,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    clearDefault(0,label.labelName)
+                                    clearDefault(0, label.labelName)
                                     expanded = false
                                 }
                             )
@@ -480,7 +493,7 @@ fun LabelCard(
                                     )
                                 },
                                 onClick = {
-                                    setDefault(0,label.labelName)
+                                    setDefault(0, label.labelName)
                                     expanded = false
                                 }
                             )
@@ -493,10 +506,13 @@ fun LabelCard(
 }
 
 @Composable
-fun SubscribeSetting(modifier:Modifier = Modifier){
+fun SubscribeSetting(modifier: Modifier = Modifier) {
     var subs = listOf<Subcribe>(
         Subcribe(amount = 1000, time = 1794672660000L, name = "YouTube"),
-        Subcribe(amount = 700, time = 1794759060000L, name = "YouTubeMusic"))
+        Subcribe(amount = 700, time = 1794759060000L, name = "YouTubeMusic")
+    )
+
+    var newSubscribe by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.padding(30.dp)) {
 
@@ -514,6 +530,13 @@ fun SubscribeSetting(modifier:Modifier = Modifier){
 
             Spacer(modifier = Modifier.size(50.dp))
 
+            if (newSubscribe) {
+                NewSubscribe(addSubscribe = {
+                    newSubscribe = false
+                })
+                Spacer(modifier = Modifier.padding(10.dp))
+            }
+
             LazyColumn(modifier = modifier) {
                 items(items = subs) { sub ->
                     SubscribeCard(
@@ -529,7 +552,7 @@ fun SubscribeSetting(modifier:Modifier = Modifier){
                 .align(Alignment.BottomEnd)
                 .padding()
                 .size(70.dp),
-            onClick = {},
+            onClick = { newSubscribe = true },
             shape = CircleShape,
             colors = ButtonColors(
                 containerColor = Color(0xFF2A4373),
@@ -552,19 +575,19 @@ fun SubscribeSetting(modifier:Modifier = Modifier){
 }
 
 @Composable
-fun SubscribeCard(modifier: Modifier = Modifier,sub: Subcribe){
+fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(220.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF2D365A),
             contentColor = Color(0xFFDFF2FF)
         )
     ) {
-        Column{
+        Column {
 
             Spacer(modifier = Modifier.weight(0.1f))
 
@@ -622,15 +645,15 @@ fun SubscribeCard(modifier: Modifier = Modifier,sub: Subcribe){
 
             Row(
                 modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .weight(1f),
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .weight(1f),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     modifier = Modifier.padding(start = 10.dp),
-                    text = "金額："+formatAmount(sub.amount),
+                    text = "金額：" + formatAmount(sub.amount),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -657,8 +680,231 @@ fun SubscribeCard(modifier: Modifier = Modifier,sub: Subcribe){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
+
+    var subscribeName by remember { mutableStateOf("") }
+    var subscribeAmount by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf("月ごと") }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(220.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2D365A),
+            contentColor = Color(0xFFDFF2FF)
+        )
+    ) {
+        Column(modifier = modifier.padding(bottom = 10.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = subscribeName,
+                    onValueChange = { subscribeName = it },
+
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFFDFF2FF),
+                        unfocusedTextColor = Color(0xFFDFF2FF),
+                        focusedContainerColor = Color(0xFF2D365A),
+                        unfocusedContainerColor = Color(0xFF2D365A),
+                        focusedIndicatorColor = Color(0xFFDFF2FF),
+                        unfocusedIndicatorColor = Color(0xFFDFF2FF)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 23.sp
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "名前を入力",
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0x80DFF2FF)
+                        )
+                    }
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = subscribeAmount,
+                    onValueChange = { subscribeAmount = it },
+
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFFDFF2FF),
+                        unfocusedTextColor = Color(0xFFDFF2FF),
+                        focusedContainerColor = Color(0xFF2D365A),
+                        unfocusedContainerColor = Color(0xFF2D365A),
+                        focusedIndicatorColor = Color(0xFFDFF2FF),
+                        unfocusedIndicatorColor = Color(0xFFDFF2FF)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 23.sp
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "金額を入力",
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0x80DFF2FF)
+                        )
+                    }
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    modifier = Modifier.width(80.dp),
+                    value = subscribeName,
+                    onValueChange = { subscribeName = it },
+
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFFDFF2FF),
+                        unfocusedTextColor = Color(0xFFDFF2FF),
+                        focusedContainerColor = Color(0xFF2D365A),
+                        unfocusedContainerColor = Color(0xFF2D365A),
+                        focusedIndicatorColor = Color(0xFFDFF2FF),
+                        unfocusedIndicatorColor = Color(0xFFDFF2FF)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 23.sp
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "数値",
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0x80DFF2FF)
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(45.dp)
+                ) {
+                    BasicTextField(
+                        value = selected,
+                        onValueChange = {},
+                        readOnly = true,
+                        textStyle = LocalTextStyle.current.copy(
+                            fontSize = 13.sp,
+                            color = Color(0xFFDFF2FF),
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        singleLine = true,
+                        interactionSource = interactionSource,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                        decorationBox = { innerTextField ->
+                            TextFieldDefaults.DecorationBox(
+                                value = selected,
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = interactionSource,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
+                                    top = 0.dp,
+                                    bottom = 0.dp,
+                                    start = 5.dp,
+                                    end = 0.dp
+                                ),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0xFF3A4770),
+                                    unfocusedContainerColor = Color(0xFF3A4770),
+                                    focusedTrailingIconColor = Color(0xFF8796BA),
+                                    unfocusedTrailingIconColor = Color(0xFF8796BA),
+                                    focusedIndicatorColor = Color(0xFF3A4770),
+                                    unfocusedIndicatorColor = Color(0xFF3A4770)
+                                )
+                            )
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = Color(0xFF25283A)
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "年ごと",
+                                    color = Color(0xFFE5EBF8)
+                                )
+                            },
+                            onClick = {
+                                selected = "年ごと"
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "月ごと",
+                                    color = Color(0xFFE5EBF8)
+                                )
+                            },
+                            onClick = {
+                                selected = "月ごと"
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "日ごと",
+                                    color = Color(0xFFE5EBF8)
+                                )
+                            },
+                            onClick = {
+                                selected = "日ごと"
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    SubscribeSetting()
+    NewSubscribe()
 }
