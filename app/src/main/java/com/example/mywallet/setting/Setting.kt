@@ -50,9 +50,11 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toLong
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendModeColorFilter
@@ -523,10 +525,26 @@ fun LabelCard(
 
 @Composable
 fun SubscribeSetting(modifier: Modifier = Modifier) {
-    var subs = listOf<Subcribe>(
-        Subcribe(amount = 1000, paymentDay = 1794672660000L, nextPaymentDay = 1797264660000L, name = "YouTube", cycle = Cycle.MONTH, value = 1),
-        Subcribe(amount = 700, paymentDay = 1794759060000L, nextPaymentDay = 1795882260000L, name = "YouTubeMusic", cycle = Cycle.DAY, value = 14)
-    )
+    val subs = remember {
+        mutableStateListOf<Subcribe>(
+            Subcribe(
+                amount = 1000,
+                paymentDay = 1794672660000L,
+                nextPaymentDay = 1797264660000L,
+                name = "YouTube",
+                cycle = Cycle.MONTH,
+                value = 1
+            ),
+            Subcribe(
+                amount = 700,
+                paymentDay = 1794759060000L,
+                nextPaymentDay = 1795882260000L,
+                name = "YouTubeMusic",
+                cycle = Cycle.DAY,
+                value = 14
+            )
+        )
+    }
 
     var newSubscribe by remember { mutableStateOf(false) }
 
@@ -547,7 +565,15 @@ fun SubscribeSetting(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.size(50.dp))
 
             if (newSubscribe) {
-                NewSubscribe(addSubscribe = {
+                NewSubscribe(addSubscribe = { name,amount,date,value,cycle ->
+                    subs.add(0,
+                        Subcribe(
+                            name = name,
+                            amount = amount,
+                            paymentDay = date,
+                            nextPaymentDay = 1797264660000L,
+                            value = value,
+                            cycle = cycle))
                     newSubscribe = false
                 })
                 Spacer(modifier = Modifier.padding(10.dp))
@@ -714,12 +740,12 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
+fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: (String, Long, Long, Long, Cycle)->Unit) {
 
     var subscribeName by remember { mutableStateOf("") }
     var subscribeAmount by remember { mutableStateOf("") }
     var subscribeCycle by remember { mutableStateOf<Cycle>(Cycle.MONTH) }
-    var subscribeDate by remember { mutableStateOf<Long?>(null) }
+    var subscribeDate by remember { mutableLongStateOf(0L) }
     var subscribeValue by remember { mutableStateOf("")}
 
     var expanded by remember { mutableStateOf(false) }
@@ -851,7 +877,7 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                         TextButton(
                             onClick = {
                                 showDatePicker = false
-                                subscribeDate = date.selectedDateMillis
+                                subscribeDate = date.selectedDateMillis ?: 0L
                             }
                         ) {
                             Text("決定")
@@ -1004,8 +1030,8 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
 
                 IconButton(
                     modifier = Modifier.size(50.dp),
-                    onClick = { if(subscribeName!="" || subscribeAmount!="" || subscribeValue!="") addSubscribe()},
-                    enabled = subscribeName!="" || subscribeAmount!="" || subscribeValue!="",
+                    onClick = { addSubscribe(subscribeName,subscribeAmount.toLong(),subscribeDate,subscribeValue.toLong(),subscribeCycle) },
+                    enabled = subscribeName!="" && subscribeAmount!="" && subscribeValue!="" && subscribeDate != 0L,
                     colors = IconButtonColors(
                         containerColor = Color(0xFF355487),
                         contentColor = Color(0xFF65D69A),
