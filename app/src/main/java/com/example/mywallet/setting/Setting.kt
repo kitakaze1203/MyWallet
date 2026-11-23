@@ -2,6 +2,7 @@ package com.example.mywallet.setting
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,8 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,8 +43,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -66,6 +71,7 @@ import com.example.mywallet.data.Label
 import com.example.mywallet.history.HistoryViewModel
 import com.example.mywallet.history.HistoryViewModelFactory
 import com.example.mywallet.module.formatAmount
+import com.example.mywallet.module.formatDateString
 
 enum class Screen {
     MAIN,
@@ -73,10 +79,19 @@ enum class Screen {
     SUBSCRIBE
 }
 
+enum class Cycle{
+    YEAR,
+    MONTH,
+    DAY
+}
+
 data class Subcribe(
-    val time: Long,
+    var paymentDay: Long,
+    var nextPaymentDay: Long,
     val name: String,
     val amount: Long,
+    val cycle: Cycle,
+    val value: Long,
 )
 
 @Composable
@@ -313,12 +328,13 @@ fun NewLabel(modifier: Modifier = Modifier, addLabel: (String) -> Unit) {
 
             IconButton(
                 modifier = Modifier.size(50.dp),
-                onClick = { addLabel(labelName) },
+                onClick = { if (labelName!="") addLabel(labelName) },
+                enabled = labelName!="",
                 colors = IconButtonColors(
-                    containerColor = Color.Transparent,
+                    containerColor = Color(0xFF355487),
                     contentColor = Color(0xFF65D69A),
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = Color(0xFF65D69A)
+                    disabledContainerColor = Color(0xFF292E46),
+                    disabledContentColor = Color(0xFF69728A)
                 )
             ) {
                 Icon(
@@ -508,8 +524,8 @@ fun LabelCard(
 @Composable
 fun SubscribeSetting(modifier: Modifier = Modifier) {
     var subs = listOf<Subcribe>(
-        Subcribe(amount = 1000, time = 1794672660000L, name = "YouTube"),
-        Subcribe(amount = 700, time = 1794759060000L, name = "YouTubeMusic")
+        Subcribe(amount = 1000, paymentDay = 1794672660000L, nextPaymentDay = 1797264660000L, name = "YouTube", cycle = Cycle.MONTH, value = 1),
+        Subcribe(amount = 700, paymentDay = 1794759060000L, nextPaymentDay = 1795882260000L, name = "YouTubeMusic", cycle = Cycle.DAY, value = 14)
     )
 
     var newSubscribe by remember { mutableStateOf(false) }
@@ -686,29 +702,33 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
 
     var subscribeName by remember { mutableStateOf("") }
     var subscribeAmount by remember { mutableStateOf("") }
+    var subscribeCycle by remember { mutableStateOf<Cycle>(Cycle.MONTH) }
+    var subscribeDate by remember { mutableStateOf<Long?>(null) }
+    var subscribeValue by remember { mutableStateOf("")}
 
     var expanded by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf("月ごと") }
+    var showDatePicker by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+    val date = rememberDatePickerState()
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(260.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF2D365A),
             contentColor = Color(0xFFDFF2FF)
         )
     ) {
         Column(modifier = modifier.padding(bottom = 10.dp)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .weight(1f),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+
                 TextField(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .padding(horizontal = 15.dp)
+                        .weight(1f),
+
                     value = subscribeName,
                     onValueChange = { subscribeName = it },
 
@@ -734,16 +754,12 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                         )
                     }
                 )
-            }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .weight(1f),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 TextField(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .padding(horizontal = 15.dp)
+                        .weight(1f),
                     value = subscribeAmount,
                     onValueChange = { subscribeAmount = it },
 
@@ -769,20 +785,16 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                         )
                     }
                 )
-            }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .weight(1f),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Box (modifier = Modifier
+                .padding(horizontal = 15.dp)
+                .width(300.dp)
+                .weight(1f)
+            ){
                 TextField(
-                    modifier = Modifier.width(80.dp),
-                    value = subscribeName,
-                    onValueChange = { subscribeName = it },
-
+                    value = formatDateString(date.selectedDateMillis),
+                    onValueChange = {},
+                    readOnly = true,
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = Color(0xFFDFF2FF),
                         unfocusedTextColor = Color(0xFFDFF2FF),
@@ -798,7 +810,7 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                     ),
                     placeholder = {
                         Text(
-                            text = "数値",
+                            text = "前回の支払日を選択",
                             fontSize = 23.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0x80DFF2FF)
@@ -806,97 +818,189 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                     }
                 )
 
-                Spacer(modifier = Modifier.size(10.dp))
-
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
+                Box(
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(45.dp)
+                        .matchParentSize()
+                        .clickable { showDatePicker = true }
+                ) {}
+            }
+
+
+            if (showDatePicker) {
+                DatePickerDialog(
+                    onDismissRequest = {
+                        showDatePicker = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDatePicker = false
+                            }
+                        ) {
+                            Text("決定")
+                        }
+                    }
                 ) {
-                    BasicTextField(
-                        value = selected,
-                        onValueChange = {},
-                        readOnly = true,
-                        textStyle = LocalTextStyle.current.copy(
-                            fontSize = 13.sp,
-                            color = Color(0xFFDFF2FF),
-                            fontWeight = FontWeight.SemiBold
+                    DatePicker(
+                        state = date
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextField(
+                        modifier = Modifier.width(80.dp),
+                        value = subscribeValue,
+                        onValueChange = { subscribeValue = it },
+
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color(0xFFDFF2FF),
+                            unfocusedTextColor = Color(0xFFDFF2FF),
+                            focusedContainerColor = Color(0xFF2D365A),
+                            unfocusedContainerColor = Color(0xFF2D365A),
+                            focusedIndicatorColor = Color(0xFFDFF2FF),
+                            unfocusedIndicatorColor = Color(0xFFDFF2FF)
                         ),
-                        singleLine = true,
-                        interactionSource = interactionSource,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                        decorationBox = { innerTextField ->
-                            TextFieldDefaults.DecorationBox(
-                                value = selected,
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = true,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = interactionSource,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
-                                    top = 0.dp,
-                                    bottom = 0.dp,
-                                    start = 5.dp,
-                                    end = 0.dp
-                                ),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0xFF3A4770),
-                                    unfocusedContainerColor = Color(0xFF3A4770),
-                                    focusedTrailingIconColor = Color(0xFF8796BA),
-                                    unfocusedTrailingIconColor = Color(0xFF8796BA),
-                                    focusedIndicatorColor = Color(0xFF3A4770),
-                                    unfocusedIndicatorColor = Color(0xFF3A4770)
-                                )
+                        textStyle = TextStyle(
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 23.sp
+                        ),
+                        placeholder = {
+                            Text(
+                                text = "数値",
+                                fontSize = 23.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0x80DFF2FF)
                             )
                         }
                     )
-                    ExposedDropdownMenu(
+
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    ExposedDropdownMenuBox(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        containerColor = Color(0xFF25283A)
+                        onExpandedChange = { expanded = it },
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(45.dp)
                     ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "年ごと",
-                                    color = Color(0xFFE5EBF8)
+                        BasicTextField(
+                            value = selected,
+                            onValueChange = {},
+                            readOnly = true,
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 13.sp,
+                                color = Color(0xFFDFF2FF),
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            singleLine = true,
+                            interactionSource = interactionSource,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                            decorationBox = { innerTextField ->
+                                TextFieldDefaults.DecorationBox(
+                                    value = selected,
+                                    innerTextField = innerTextField,
+                                    enabled = true,
+                                    singleLine = true,
+                                    visualTransformation = VisualTransformation.None,
+                                    interactionSource = interactionSource,
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expanded
+                                        )
+                                    },
+                                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
+                                        top = 0.dp,
+                                        bottom = 0.dp,
+                                        start = 5.dp,
+                                        end = 0.dp
+                                    ),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color(0xFF3A4770),
+                                        unfocusedContainerColor = Color(0xFF3A4770),
+                                        focusedTrailingIconColor = Color(0xFF8796BA),
+                                        unfocusedTrailingIconColor = Color(0xFF8796BA),
+                                        focusedIndicatorColor = Color(0xFF3A4770),
+                                        unfocusedIndicatorColor = Color(0xFF3A4770)
+                                    )
                                 )
-                            },
-                            onClick = {
-                                selected = "年ごと"
-                                expanded = false
                             }
                         )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "月ごと",
-                                    color = Color(0xFFE5EBF8)
-                                )
-                            },
-                            onClick = {
-                                selected = "月ごと"
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "日ごと",
-                                    color = Color(0xFFE5EBF8)
-                                )
-                            },
-                            onClick = {
-                                selected = "日ごと"
-                                expanded = false
-                            }
-                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            containerColor = Color(0xFF25283A)
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "年ごと",
+                                        color = Color(0xFFE5EBF8)
+                                    )
+                                },
+                                onClick = {
+                                    selected = "年ごと"
+                                    expanded = false
+                                    subscribeCycle = Cycle.YEAR
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "月ごと",
+                                        color = Color(0xFFE5EBF8)
+                                    )
+                                },
+                                onClick = {
+                                    selected = "月ごと"
+                                    expanded = false
+                                    subscribeCycle = Cycle.MONTH
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "日ごと",
+                                        color = Color(0xFFE5EBF8)
+                                    )
+                                },
+                                onClick = {
+                                    selected = "日ごと"
+                                    expanded = false
+                                    subscribeCycle = Cycle.DAY
+                                }
+                            )
+                        }
                     }
+                }
+
+                IconButton(
+                    modifier = Modifier.size(50.dp),
+                    onClick = { if(subscribeName!="" || subscribeAmount!="" || subscribeValue!="") addSubscribe()},
+                    enabled = subscribeName!="" || subscribeAmount!="" || subscribeValue!="",
+                    colors = IconButtonColors(
+                        containerColor = Color(0xFF355487),
+                        contentColor = Color(0xFF65D69A),
+                        disabledContainerColor = Color(0xFF292E46),
+                        disabledContentColor = Color(0xFF69728A)
+                    )
+                ) {
+                    Icon(
+                        modifier = Modifier.size(40.dp),
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "確定"
+                    )
                 }
             }
         }
@@ -906,5 +1010,5 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    NewSubscribe()
+    NewSubscribe(addSubscribe = {})
 }
