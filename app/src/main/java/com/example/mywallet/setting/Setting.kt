@@ -79,10 +79,10 @@ enum class Screen {
     SUBSCRIBE
 }
 
-enum class Cycle{
-    YEAR,
-    MONTH,
-    DAY
+enum class Cycle(val code:String){
+    YEAR("年毎"),
+    MONTH("月毎"),
+    DAY("日毎")
 }
 
 data class Subcribe(
@@ -597,7 +597,7 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(260.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF2D365A),
             contentColor = Color(0xFFDFF2FF)
@@ -669,7 +669,7 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
             ) {
                 Text(
                     modifier = Modifier.padding(start = 10.dp),
-                    text = "金額：" + formatAmount(sub.amount),
+                    text = "金額： ${formatAmount(sub.amount)}",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -685,7 +685,23 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
             ) {
                 Text(
                     modifier = Modifier.padding(start = 10.dp),
-                    text = "更新：　毎月",
+                    text = "前回： ${formatDateString(sub.paymentDay)}",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = "更新： ${sub.value}${sub.cycle.code}",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -835,6 +851,7 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
                         TextButton(
                             onClick = {
                                 showDatePicker = false
+                                subscribeDate = date.selectedDateMillis
                             }
                         ) {
                             Text("決定")
@@ -1010,5 +1027,5 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: ()->Unit) {
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun TestSetting() {
-    NewSubscribe(addSubscribe = {})
+    SubscribeSetting()
 }
