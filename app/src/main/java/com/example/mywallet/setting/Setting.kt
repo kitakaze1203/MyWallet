@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,10 +53,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toLong
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -70,10 +67,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mywallet.MyWalletApplication
 import com.example.mywallet.data.Label
-import com.example.mywallet.history.HistoryViewModel
-import com.example.mywallet.history.HistoryViewModelFactory
 import com.example.mywallet.module.formatAmount
 import com.example.mywallet.module.formatDateString
+import com.example.mywallet.module.setPaymentDay
 
 enum class Screen {
     MAIN,
@@ -87,8 +83,8 @@ enum class Cycle(val code:String){
     DAY("日毎")
 }
 
-data class Subcribe(
-    var paymentDay: Long,
+data class Subscribe(
+    var basePaymentDay: Long,
     var nextPaymentDay: Long,
     val name: String,
     val amount: Long,
@@ -526,18 +522,18 @@ fun LabelCard(
 @Composable
 fun SubscribeSetting(modifier: Modifier = Modifier) {
     val subs = remember {
-        mutableStateListOf<Subcribe>(
-            Subcribe(
+        mutableStateListOf<Subscribe>(
+            Subscribe(
                 amount = 1000,
-                paymentDay = 1794672660000L,
+                basePaymentDay = 1794672660000L,
                 nextPaymentDay = 1797264660000L,
                 name = "YouTube",
                 cycle = Cycle.MONTH,
                 value = 1
             ),
-            Subcribe(
+            Subscribe(
                 amount = 700,
-                paymentDay = 1794759060000L,
+                basePaymentDay = 1794759060000L,
                 nextPaymentDay = 1795882260000L,
                 name = "YouTubeMusic",
                 cycle = Cycle.DAY,
@@ -567,11 +563,11 @@ fun SubscribeSetting(modifier: Modifier = Modifier) {
             if (newSubscribe) {
                 NewSubscribe(addSubscribe = { name,amount,date,value,cycle ->
                     subs.add(0,
-                        Subcribe(
+                        Subscribe(
                             name = name,
                             amount = amount,
-                            paymentDay = date,
-                            nextPaymentDay = 1797264660000L,
+                            basePaymentDay = date,
+                            nextPaymentDay = setPaymentDay(millis = date, baseMillis = date, cycle = cycle, value = value),
                             value = value,
                             cycle = cycle))
                     newSubscribe = false
@@ -617,7 +613,7 @@ fun SubscribeSetting(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
+fun SubscribeCard(modifier: Modifier = Modifier, sub: Subscribe) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -711,7 +707,7 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subcribe) {
             ) {
                 Text(
                     modifier = Modifier.padding(start = 10.dp),
-                    text = "前回： ${formatDateString(sub.paymentDay)}",
+                    text = "予定： ${formatDateString(sub.nextPaymentDay)}",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
