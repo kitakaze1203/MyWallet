@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
@@ -59,6 +60,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -79,7 +81,7 @@ enum class Screen {
 
 enum class Cycle(val code:String){
     YEAR("年毎"),
-    MONTH("月毎"),
+    MONTH("ヶ月毎"),
     DAY("日毎")
 }
 
@@ -803,6 +805,7 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: (String, Long, Lon
                         .padding(horizontal = 15.dp)
                         .weight(1f),
                     value = subscribeAmount,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChange = { subscribeAmount = it },
 
                     colors = TextFieldDefaults.colors(
@@ -903,6 +906,7 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: (String, Long, Lon
                         modifier = Modifier.width(80.dp),
                         value = subscribeValue,
                         onValueChange = { subscribeValue = it },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
 
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = Color(0xFFDFF2FF),
@@ -1030,8 +1034,8 @@ fun NewSubscribe(modifier: Modifier = Modifier, addSubscribe: (String, Long, Lon
 
                 IconButton(
                     modifier = Modifier.size(50.dp),
-                    onClick = { addSubscribe(subscribeName,subscribeAmount.toLong(),subscribeDate,subscribeValue.toLong(),subscribeCycle) },
-                    enabled = subscribeName!="" && subscribeAmount!="" && subscribeValue!="" && subscribeDate != 0L,
+                    onClick = { addSubscribe(subscribeName, subscribeAmount.toLong(), subscribeDate, subscribeValue.toLong(), subscribeCycle) },
+                    enabled = subscribeName != "" && subscribeAmount != "" && (subscribeValue.toLongOrNull() ?: -1L) > 0L && subscribeDate != 0L,
                     colors = IconButtonColors(
                         containerColor = Color(0xFF355487),
                         contentColor = Color(0xFF65D69A),
