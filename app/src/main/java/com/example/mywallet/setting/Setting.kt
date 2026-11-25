@@ -579,7 +579,8 @@ fun SubscribeSetting(modifier: Modifier = Modifier) {
                 items(items = subs) { sub ->
                     SubscribeCard(
                         modifier = modifier.padding(vertical = 10.dp),
-                        sub = sub
+                        sub = sub,
+                        deleteSubscribe = {subs.remove(sub)}
                     )
                 }
             }
@@ -613,7 +614,7 @@ fun SubscribeSetting(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SubscribeCard(modifier: Modifier = Modifier, sub: Subscribe) {
+fun SubscribeCard(modifier: Modifier = Modifier, sub: Subscribe, deleteSubscribe: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -675,7 +676,10 @@ fun SubscribeCard(modifier: Modifier = Modifier, sub: Subscribe) {
                                     color = Color(0xFFDFF2FF)
                                 )
                             },
-                            onClick = {}
+                            onClick = {
+                                deleteSubscribe()
+                                expanded = !expanded
+                            }
                         )
                     }
                 }
