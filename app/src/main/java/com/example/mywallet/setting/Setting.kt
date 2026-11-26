@@ -115,7 +115,7 @@ fun Setting(modifier: Modifier = Modifier) {
 
     when (screen) {
         Screen.MAIN -> {
-            MainScreen(onLabelClick = { screen = Screen.LABEL })
+            MainScreen(onLabelClick = { screen = Screen.LABEL }, onSubscribeClick = { screen = Screen.SUBSCRIBE })
         }
 
         Screen.LABEL -> {
@@ -129,13 +129,13 @@ fun Setting(modifier: Modifier = Modifier) {
         }
 
         Screen.SUBSCRIBE -> {
-
+            SubscribeSetting()
         }
     }
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onLabelClick: () -> Unit) {
+fun MainScreen(modifier: Modifier = Modifier, onLabelClick: () -> Unit, onSubscribeClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -182,7 +182,7 @@ fun MainScreen(modifier: Modifier = Modifier, onLabelClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(150.dp)
                 .weight(1f),
-            onClick = {},
+            onClick = onSubscribeClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonColors(
                 containerColor = Color(0xFF2A4373),
