@@ -15,8 +15,14 @@ interface TransactionDao {
     @Insert
     suspend fun insertLabel(label: Label)
 
+    @Insert
+    suspend fun insertSubscribe(subscribe: Subscribe)
+
     @Delete
     suspend fun deleteLabel(label: Label)
+
+    @Delete
+    suspend fun deleteSubscribe(subscribe: Subscribe)
 
     @Query("SELECT SUM(amount) FROM `Transaction`")
     suspend fun getTotal(): Long?
@@ -153,4 +159,14 @@ interface TransactionDao {
     """)
     suspend fun clearGrossDefault(labelName: String)
 
+    @Query("""
+        UPDATE `Subscribe`
+        SET nextPaymentDay = :nextDay
+    """)
+    suspend fun setNextPaymentDay(nextDay: Long)
+
+    @Query("""
+        SELECT * FROM `Subscribe`
+    """)
+    suspend fun getSubscribes(): Flow<List<Subscribe>>
 }

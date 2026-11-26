@@ -245,49 +245,5 @@ fun Label(
 @Preview(backgroundColor = 0xFF171824, showBackground = true)
 @Composable
 fun HistoryTest() {
-    val dummyTransactions = listOf(
-        Transaction(
-            id = 1,
-            amount = -1000L,
-            timestamp = 1760972400000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 2,
-            amount = 3000L,
-            timestamp = 1761058800000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 3,
-            amount = -500L,
-            timestamp = 1761145200000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 4,
-            amount = -500L,
-            timestamp = 1761145200000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 5,
-            amount = -500L,
-            timestamp = 1761145200000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 6,
-            amount = -500L,
-            timestamp = 1761145200000L,
-            labelId = null
-        ),
-        Transaction(
-            id = 7,
-            amount = -500L,
-            timestamp = 1761145200000L,
-            labelId = null
-        )
-    )
-//    HistoryContent(transactions = dummyTransactions, onSetLabel = { label, id -> })
+
 }

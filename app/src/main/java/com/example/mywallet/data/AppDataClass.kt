@@ -3,6 +3,13 @@ package com.example.mywallet.data
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.mywallet.setting.Cycle
+
+enum class Cycle(val code:String){
+    YEAR("年毎"),
+    MONTH("ヶ月毎"),
+    DAY("日毎")
+}
 
 @Entity
 data class Label(
@@ -12,6 +19,18 @@ data class Label(
     var expenseDefault: Boolean = false,
     var grossDefault: Boolean = false,
     var noDelete: Boolean = false,
+)
+
+@Entity
+data class Subscribe(
+    @PrimaryKey(autoGenerate = true)
+    val id:Long = 0,
+    var basePaymentDay: Long,
+    var nextPaymentDay: Long,
+    val name: String,
+    val amount: Long,
+    val cycle: Cycle,
+    val value: Long,
 )
 
 @Entity
